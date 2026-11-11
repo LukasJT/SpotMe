@@ -4,11 +4,15 @@
 
 An adult dating product built around training compatibility, with iOS, Android, and a fully usable desktop website.
 
-This repository contains the researched product handoff and a standalone discovery prototype. The prototype uses fictional profiles and photo placeholders. Its interactions run locally and reset when the page reloads.
+This repository contains the researched product handoff, a browser demo using fictional accounts, and the first private database migration.
 
 ## Start here
 
-Open [the discovery prototype](apps/web/discovery-preview.html) locally in a browser. Scroll within the card, try the photo controls, then use Pass or Like. A deliberate horizontal drag on the card also advances the sample deck. The white and soft gray theme uses blue for the primary action.
+From the repository root, run `node tools/build-local.mjs` with Node.js 22 or later, then open `dist/spotme-local.html`. The build kit also includes a prebuilt `SpotMe-Local-App.html`. The demo stores edits and messages in the current browser when browser storage is available. Use fictional information when testing.
+
+Start as Alex and like Maya in Discover. Switch the sample account to Maya and like Alex, then open Matches to send a message. Switch back to Alex to read it. Try My profile to change who sees training days and gyms, or select gyms across cities and submit a missing gym in Gyms. Suggestions appear only for the sample account that submitted them. The demo also supports reporting, blocking, and unmatching.
+
+The [original discovery prototype](apps/web/discovery-preview.html) remains available as a single-card interaction reference. See the [database foundation](supabase/README.md) for the migration and the checks needed before connecting a hosted database.
 
 Give the next implementation agent [the master prompt](docs/00-ai-builder-prompt.md), then have it read the linked specifications before coding.
 
