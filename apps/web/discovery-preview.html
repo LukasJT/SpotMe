@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SpotMe — Discovery prototype</title>
+<style>body{margin:0;padding:clamp(8px,3vw,32px);background:#f7f8fa}#spotme-light{max-width:1024px;margin:auto}</style>
+</head>
+<body>
+<div id="spotme-light" aria-label="SpotMe discovery preview">
+<style>
+#spotme-light{color-scheme:light;--canvas:#f7f8fa;--surface:#fff;--text:#111827;--muted:#4b5563;--line:#e5e7eb;--control:#6b7280;--blue:#2563eb;--soft:#eff6ff;--on-primary:#fff;font:15px/1.5 Inter,system-ui,sans-serif;color:var(--text)}
+#spotme-light *{box-sizing:border-box}#spotme-light [hidden]{display:none!important}
+#spotme-light h2,#spotme-light h3,#spotme-light p{margin:0}#spotme-light button{font:inherit;color:inherit}
+#spotme-light :focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+#spotme-light .window{background:var(--canvas);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+#spotme-light header{background:var(--surface);display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 100px 14px 24px;border-bottom:1px solid var(--line)}
+#spotme-light .wordmark{font-size:24px;font-weight:750;letter-spacing:-1px}#spotme-light .wordmark b{color:var(--blue)}
+#spotme-light .quiet{color:var(--muted);font-size:13px}
+#spotme-light .stage{padding:18px 16px 8px;max-width:474px;margin:auto}
+#spotme-light .heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:12px}#spotme-light h2{font-size:22px}
+#spotme-light .card-shell{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 5px 20px #1118270c;touch-action:pan-y pinch-zoom}
+#spotme-light .card-scroll{max-height:min(57vh,490px);min-height:225px;overflow-y:auto;overscroll-behavior-y:contain;scrollbar-gutter:stable}
+#spotme-light .card-scroll:focus-visible{outline-offset:-4px}
+#spotme-light .photo{position:relative;min-height:200px;background:#e6eef9;display:grid;place-items:center;isolation:isolate}
+#spotme-light .initials{font-size:62px;letter-spacing:-3px;font-weight:700;color:#40577b;user-select:none}
+#spotme-light .photo-count{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--surface);border-radius:20px;padding:3px 10px;font-size:12px}
+#spotme-light .photo button{position:absolute;top:50%;transform:translateY(-50%);width:44px;padding:0;font-size:24px;line-height:1}#spotme-light .prev{left:10px}#spotme-light .next{right:10px}
+#spotme-light .profile-section{padding:14px 18px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}#spotme-light .profile-section h3{font-size:15px;margin-bottom:5px}#spotme-light .profile-section .name{font-size:23px;margin:0}
+#spotme-light .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}#spotme-light .tag{padding:4px 9px;background:#f3f4f6;border-radius:20px;font-size:13px}#spotme-light .tag.selected{background:var(--soft);color:var(--blue)}
+#spotme-light .scroll-note{padding:8px 18px 0;color:var(--muted);font-size:12px}
+#spotme-light .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 14px;border-top:1px solid var(--line)}
+#spotme-light button{min-height:44px;border:1px solid var(--control);border-radius:10px;background:var(--surface);padding:7px 12px;font-weight:650}
+#spotme-light button.primary{background:var(--blue);border-color:var(--blue);color:var(--on-primary)}#spotme-light button.primary:hover{background:#1d4ed8}#spotme-light button:disabled{opacity:.5}
+#spotme-light .status{min-height:22px;padding:5px 0;font-size:13px;color:var(--muted)}#spotme-light .empty{padding:24px;background:var(--surface);border:1px solid var(--line);border-radius:16px}#spotme-light .empty button{margin-top:12px}
+@media(max-width:420px){#spotme-light header{padding-left:16px;gap:4px 12px}#spotme-light .stage{padding-inline:10px}#spotme-light .photo{min-height:166px}}
+</style>
+<div class="window">
+  <header><span class="wordmark">SpotMe<b>••</b></span><span class="quiet">Train Match Connect</span></header>
+  <main class="stage">
+    <div class="heading"><h2>Discover</h2><span class="quiet">Kitchener–Waterloo · Sample profiles</span></div>
+    <article class="card-shell" data-card aria-label="Dating profile">
+      <div class="card-scroll" data-scroll role="region" aria-label="Scrollable profile" tabindex="0">
+        <div class="photo" data-photo>
+          <span class="initials" data-initials aria-hidden="true">AK</span>
+          <button class="prev" data-prev type="button" aria-label="Previous photo">‹</button>
+          <button class="next" data-next type="button" aria-label="Next photo">›</button>
+          <span class="photo-count" data-photo-count aria-live="polite">Photo placeholder 1 of 6</span>
+        </div>
+        <p class="scroll-note">Scroll for the full profile ↓</p>
+        <div data-details></div>
+      </div>
+      <div class="actions">
+        <button type="button" data-pass>Pass</button>
+        <button type="button" class="primary" data-like>Like</button>
+      </div>
+    </article>
+    <section class="empty" data-empty hidden><h3>You’ve seen all the sample profiles.</h3><button type="button" data-restart>Start over</button></section>
+    <p class="status" data-status role="status"></p>
+  </main>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('spotme-light');
+  const card = root.querySelector('[data-card]');
+  const scroll = root.querySelector('[data-scroll]');
+  const details = root.querySelector('[data-details]');
+  const empty = root.querySelector('[data-empty]');
+  const status = root.querySelector('[data-status]');
+  const photo = root.querySelector('[data-photo]');
+  const previous = root.querySelector('[data-prev]');
+  const next = root.querySelector('[data-next]');
+  const profiles = [
+    {name:'Alex', initials:'AK', age:28, city:'Kitchener', pronouns:'they/them', bio:'I lift four days a week and spend weekends on the trails. Always up for a post-workout coffee that turns into a long walk.', intent:'Long-term relationship', split:'Upper / lower', frequency:'4 days a week', days:['Mon · Upper','Tue · Lower','Thu · Upper','Sat · Lower'], gyms:['Foundry Training · Kitchener','Northline Strength · Waterloo'], interests:['Strength training','Hiking','Coffee'], photos:6},
+    {name:'Maya', initials:'MR', age:27, city:'Waterloo', pronouns:'she/her', bio:'I’m happiest after a morning run or a good group class. Currently trying to find the best ramen in Waterloo.', intent:'Long-term relationship', split:'Full body', frequency:'3 days a week', days:[], gyms:[], interests:['Running','Group fitness','Cooking'], photos:4},
+    {name:'Jordan', initials:'JL', age:30, city:'Cambridge', pronouns:'he/him', bio:'Getting back into lifting and looking for someone to explore new trails with. I will always stop to pet a dog.', intent:'Open to seeing where it goes', split:'Push / pull / legs', frequency:'3 days a week', days:['Tue · Push','Thu · Pull','Sun · Legs'], gyms:[], interests:['Lifting','Trail walking','Dogs'], photos:5}
+  ];
+  const photoColors = ['#e6eef9','#e9eef3','#e9f1ef','#f1ebf6','#f2ede7','#e8eff5'];
+  let profileIndex = 0;
+  let photoIndex = 0;
+  let gesture = null;
+
+  function section(heading, description, tags = [], selected = false) {
+    const block = document.createElement('section');
+    block.className = 'profile-section';
+    const title = document.createElement('h3');
+    title.textContent = heading;
+    block.append(title);
+    if (description) {
+      const text = document.createElement('p');
+      text.textContent = description;
+      block.append(text);
+    }
+    if (tags.length) {
+      const group = document.createElement('div');
+      group.className = 'tags';
+      for (const value of tags) {
+        const tag = document.createElement('span');
+        tag.className = selected ? 'tag selected' : 'tag';
+        tag.textContent = value;
+        group.append(tag);
+      }
+      block.append(group);
+    }
+    return block;
+  }
+
+  function showPhoto() {
+    const profile = profiles[profileIndex];
+    root.querySelector('[data-initials]').textContent = profile.initials;
+    root.querySelector('[data-photo-count]').textContent = `Photo placeholder ${photoIndex + 1} of ${profile.photos}`;
+    photo.style.background = photoColors[photoIndex];
+    previous.disabled = photoIndex === 0;
+    next.disabled = photoIndex === profile.photos - 1;
+  }
+
+  function showProfile() {
+    const profile = profiles[profileIndex];
+    card.hidden = !profile;
+    empty.hidden = !!profile;
+    if (!profile) return;
+    const basics = section(`${profile.name}, ${profile.age}`, `${profile.city} · ${profile.pronouns}`);
+    basics.querySelector('h3').className = 'name';
+    details.replaceChildren(basics, section('About me', profile.bio), section('Looking for', profile.intent), section('Training split', `${profile.split} · ${profile.frequency}`));
+    if (profile.days.length) details.append(section('Typical week', '', profile.days, true));
+    if (profile.gyms.length) details.append(section('Where I train', '', profile.gyms));
+    details.append(section('Interests', '', profile.interests));
+    card.setAttribute('aria-label', `${profile.name}, ${profile.age}, dating profile`);
+    photoIndex = 0;
+    showPhoto();
+    scroll.scrollTop = 0;
+  }
+
+  function decide(liked) {
+    const profile = profiles[profileIndex];
+    if (!profile) return;
+    profileIndex += 1;
+    showProfile();
+    const upcoming = profiles[profileIndex];
+    status.textContent = `${liked ? 'Liked' : 'Passed on'} ${profile.name}. ${upcoming ? `Now showing ${upcoming.name}.` : 'End of sample profiles.'}`;
+    (upcoming ? scroll : root.querySelector('[data-restart]')).focus({preventScroll:true});
+  }
+
+  previous.addEventListener('click', () => { photoIndex -= 1; showPhoto(); });
+  next.addEventListener('click', () => { photoIndex += 1; showPhoto(); });
+  root.querySelector('[data-pass]').addEventListener('click', () => decide(false));
+  root.querySelector('[data-like]').addEventListener('click', () => decide(true));
+  root.querySelector('[data-restart]').addEventListener('click', () => {
+    profileIndex = 0;
+    status.textContent = '';
+    showProfile();
+    scroll.focus({preventScroll:true});
+  });
+
+  scroll.addEventListener('pointerdown', event => {
+    if (!event.isPrimary || event.button !== 0 || event.target.closest('button, a, input, select, textarea')) return;
+    gesture = {id:event.pointerId, x:event.clientX, y:event.clientY, direction:null};
+  });
+  scroll.addEventListener('pointermove', event => {
+    if (!gesture || event.pointerId !== gesture.id || gesture.direction) return;
+    const x = Math.abs(event.clientX - gesture.x);
+    const y = Math.abs(event.clientY - gesture.y);
+    if (Math.max(x, y) >= 12) gesture.direction = x > y * 1.6 ? 'horizontal' : 'vertical';
+  });
+  scroll.addEventListener('pointerup', event => {
+    if (!gesture || event.pointerId !== gesture.id) return;
+    const {x, y, direction} = gesture;
+    gesture = null;
+    const dx = event.clientX - x;
+    const dy = event.clientY - y;
+    const selection = window.getSelection()?.toString();
+    if (direction === 'horizontal' && !selection && Math.abs(dx) >= 70 && Math.abs(dx) > Math.abs(dy) * 1.6) decide(dx > 0);
+  });
+  scroll.addEventListener('pointercancel', () => { gesture = null; });
+  scroll.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse') gesture = null; });
+  showProfile();
+})();
+</script>
+</div>
+</body>
+</html>

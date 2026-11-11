@@ -76,9 +76,11 @@ Gym pages must never list members, attendance schedules, or counts for small coh
 
 ## 6. Discovery and matching
 
-**Required:** one primary person card at a time; left/pass and right/like gesture plus visible named buttons. Tap/click through six available photo slots and open full profile details. Provide keyboard and screen-reader equivalents, including a non-drag photo reorder path.
+**Required:** one compact person card at a time; left/pass and right/like gesture plus visible named buttons. Scroll vertically inside that same card to read the complete audience-visible profile; no separate full-profile screen is required for discovery. Photos, full bio, dating basics, training information, and shared gym details stay within the card. Tap/click through up to six photos using explicit photo controls. Keep Pass/Like visible in the card footer while its body scrolls. Provide keyboard and screen-reader equivalents, including a non-drag photo reorder path in editing.
 
-Card content: primary photo, display name, derived age, broad city, bio excerpt, selected training information, and only consented gym/schedule fields. Use short factual compatibility labels, such as “Both enjoy strength training,” with underlying permission checks. Never show made-up “92% compatible” values.
+Card content: primary photo, display name, derived age, broad city, optional shared pronouns, relationship intent, full bio, all audience-visible training information, interests, and only consented gym/schedule fields. “All information” means all fields this viewer is authorized to see; private and matches-only information remains excluded from unmatched discovery. Use short factual compatibility labels, such as “Both enjoy strength training,” with underlying permission checks. Never show made-up “92% compatible” values.
+
+Card behavior: distinguish vertical scrolling from horizontal dating swipes with a direction lock and deliberate travel/velocity threshold. Diagonal scrolling, selecting text, operating photo controls, and tapping a report control must not cause a like or pass. Preserve the card and its scroll position on a failed action; after a successful decision, reset the next profile to its top and first photo. Use the same profile-card component for authorized matched-profile viewing, with the appropriate audience projection. Keep discovery free of mandatory profile-information sidebars.
 
 Eligibility filters run server-side before ranking: active verified 18+ users, allowed markets, reciprocal gender and age preferences, moderation eligibility, no self, neither-direction block, no existing match or durable unmatch exclusion, and no recent pass/like already handled. Proposed pass resurfacing after 30 days must be configurable and explained; never resurface blocked people. Explain when filters leave an empty pool and let the user widen them deliberately.
 
@@ -114,7 +116,7 @@ Never publish a member profile in a search index. Do not put profile bodies, med
 |---|---|---|
 | Account | Welcome, sign-in/up, verify, recovery, age gate | Pending, invalid/expired link, throttle, offline, deleted account |
 | Onboarding | Basics, photos, bio, routine, gyms, preview | Draft/resume, validation, rejected photo, pending gym, unsupported market |
-| Discovery | Card deck, full profile, preferences, match sheet | Loading, exhausted, no eligible users, rate limited, photo revoked |
+| Discovery | Scrollable profile-card deck, preferences, match sheet | Loading, exhausted, no eligible users, rate limited, photo revoked |
 | Social | Match list, conversation, report, block/unmatch | Empty, retry, removed participant, blocked, moderation restriction |
 | Settings | Privacy, sessions, notifications, export, delete | Reauthentication, queued/completed export, deletion failure/retry |
 | Staff | Review queues, case details, gym edits, audit log | Permission denied, concurrent edit, evidence unavailable, appeal |

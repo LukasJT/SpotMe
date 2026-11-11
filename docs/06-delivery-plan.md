@@ -22,9 +22,9 @@ Implement municipality/market config, ingestion adapters, provenance, canonical 
 
 ## Milestone 3 — discovery and transactional matching
 
-Implement privacy-safe candidate retrieval, reciprocal eligibility filters, understandable ranking, pagination, swipe actions, event outbox, match creation, and match list. Make button/keyboard paths equivalent to gestures. Test candidate queries against realistic synthetic distributions, not only uniformly distributed seed rows.
+Implement privacy-safe candidate retrieval, reciprocal eligibility filters, understandable ranking, pagination, the single scrollable profile-card interface, swipe actions, event outbox, match creation, and match list. Make button/keyboard paths equivalent to gestures. Test candidate queries against realistic synthetic distributions, not only uniformly distributed seed rows.
 
-**Acceptance:** simultaneous reciprocal likes create one match and one conversation; replayed requests preserve the original action outcome while reapplying current authorization and redacting revoked content; pass/like races are deterministic; blocked/suspended/deleted/underage/unverified users cannot leak through queries or cached cards. Empty pools show honest states. Filtering/ranking never reveals private gym affiliations or routines.
+**Acceptance:** simultaneous reciprocal likes create one match and one conversation; replayed requests preserve the original action outcome while reapplying current authorization and redacting revoked content; pass/like races are deterministic; blocked/suspended/deleted/underage/unverified users cannot leak through queries or cached cards. Empty pools show honest states. Filtering/ranking never reveals private gym affiliations or routines. The entire audience-visible profile can be read by vertically scrolling within one compact card. Vertical/diagonal scrolling, text selection, photo navigation, and safety controls do not accidentally trigger a dating swipe. Pass/Like remain reachable with keyboard and screen-reader equivalents. Successful profile changes reset card scroll/photo state; failed actions retain the current profile and position.
 
 ## Milestone 4 — conversation and notifications
 

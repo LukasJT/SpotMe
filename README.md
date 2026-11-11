@@ -4,9 +4,11 @@
 
 An adult dating product built around training compatibility, with iOS, Android, and a fully usable desktop website.
 
-This repository currently contains a researched product and implementation handoff, not a working application. Prepared November 11, 2026. No gym directory was scraped, no production accounts were provisioned, and no app has been deployed.
+This repository contains the researched product handoff and a standalone discovery prototype. The prototype uses fictional profiles and photo placeholders. Its interactions run locally and reset when the page reloads.
 
 ## Start here
+
+Open [the discovery prototype](apps/web/discovery-preview.html) locally in a browser. Scroll within the card, try the photo controls, then use Pass or Like. A deliberate horizontal drag on the card also advances the sample deck. The white and soft gray theme uses blue for the primary action.
 
 Give the next implementation agent [the master prompt](docs/00-ai-builder-prompt.md), then have it read the linked specifications before coding.
 

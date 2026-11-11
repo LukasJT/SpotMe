@@ -11,11 +11,11 @@ This is a serious product intended for public launch. Do not stop at a decorativ
 ## Founder requirements that must survive implementation
 
 - Name: **SpotMe**. Slogan: **SpotMe Train Match Connect**.
-- Familiar card-based dating discovery: like/pass, mutual matching, and conversation after a match. Build an original interface and brand.
+- Familiar card-based dating discovery: one compact profile card at a time, with vertical scrolling through the person's complete audience-visible profile inside that card. Horizontal swipes and visible Pass/Like buttons control dating decisions. Mutual likes unlock matching and conversation. Build an original interface and brand.
 - Profiles: bio, **six photo slots**, age and other appropriate dating basics, training days, workout split, fitness interests/goals, and relationship preferences. Implement the proposed minimum-photo rule as configurable rather than hard-coding an assumption that six uploads are compulsory.
 - Gym selection: search/select a **city**, then choose **multiple physical gym locations** for the profile. Distinguish chain branches by address. Allow users to suggest a missing gym with **name and address**.
 - A maintained gym directory covering the **GTA, Kitchener–Waterloo area, Golden Horseshoe, Barrie, and surrounding Ontario**. The research handoff has not scraped data. During implementation, use licensed imports, permitted sources, and moderated submissions; describe measured coverage instead of claiming to have every gym.
-- Mostly dark visual design with punchy playful accents, differentiated from common dating-app palettes.
+- Light, familiar visual design using white surfaces, soft gray backgrounds, dark text, and a restrained blue accent.
 - Online account creation with sound security, efficient operating costs, and excellent discoverability for the public website.
 - Full desktop dating functionality, not merely a download-app page.
 
