@@ -79,7 +79,7 @@ function render(focus) {
   screen.replaceChildren(view);
   if (focus) {
     const target = screen.querySelector(focus) ?? screen.querySelector('h1');
-    target?.setAttribute('tabindex', target.matches('button,input,textarea,[tabindex]') ? target.getAttribute('tabindex') ?? '0' : '-1');
+    if (target && !target.matches('button,input,select,textarea,[tabindex]')) target.setAttribute('tabindex','-1');
     target?.focus({preventScroll:true});
   }
 }
