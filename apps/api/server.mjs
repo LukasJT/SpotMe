@@ -1,7 +1,9 @@
 import {createServer} from 'node:http';
+import {readFile} from 'node:fs/promises';
 import {Readable} from 'node:stream';
 import pg from 'pg';
 import {createChatHandler, createSupabaseVerifier} from './chat.mjs';
+import {createBrowserHandler, createPasswordExchange} from './browser.mjs';
 
 const {SPOTME_DATABASE_URL, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY} = process.env;
 const port = Number(process.env.PORT ?? 3080);
@@ -24,12 +26,26 @@ if (!check.rows[0]?.allowed) {
   throw new Error('Use a dedicated login that inherits only the SpotMe chat privileges.');
 }
 db.on('error', () => console.error('An idle database connection failed.'));
-const handle = createChatHandler({verify, db});
+const chat = createChatHandler({verify, db});
+const handle = createBrowserHandler({origin:process.env.SPOTME_WEB_ORIGIN ?? `http://127.0.0.1:${port}`,
+  exchange:createPasswordExchange({url:SUPABASE_URL,apiKey:SUPABASE_PUBLISHABLE_KEY}), verify, chat});
+const assets = new Map(await Promise.all([
+  ['/', 'index.html', 'text/html; charset=utf-8'],
+  ['/app.css', 'app.css', 'text/css; charset=utf-8'],
+  ['/app.js', 'app.js', 'text/javascript; charset=utf-8']
+].map(async ([path,file,type])=>[path,{type,content:await readFile(new URL(`./web/${file}`,import.meta.url))}])));
 const server = createServer({requestTimeout:15000, headersTimeout:8000}, async (req, res) => {
   try {
     const target = req.url;
     if (!target?.startsWith('/') || target.startsWith('//')) {
       res.writeHead(400, {'cache-control':'no-store'}).end();
+      return;
+    }
+    const asset = assets.get(new URL(`http://localhost${target}`).pathname);
+    if (asset && ['GET','HEAD'].includes(req.method)) {
+      res.writeHead(200, {'content-type':asset.type,'cache-control':'no-store','x-content-type-options':'nosniff',
+        'content-security-policy':"default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+        'referrer-policy':'no-referrer','x-robots-tag':'noindex, nofollow'}).end(req.method === 'HEAD' ? undefined : asset.content);
       return;
     }
     const init = {method:req.method, headers:req.headers};

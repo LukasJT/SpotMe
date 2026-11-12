@@ -13,13 +13,18 @@ function json(body, status = 200) {
   return Response.json(body, {status, headers});
 }
 
-function createSupabaseVerifier({url, apiKey, fetchUser = fetch}) {
+function httpOrigin(url) {
   const origin = new URL(url);
   const local = ['localhost','127.0.0.1','[::1]'].includes(origin.hostname);
   if (origin.username || origin.password || origin.pathname !== '/' || origin.search || origin.hash ||
       !(origin.protocol === 'https:' || (local && origin.protocol === 'http:'))) {
-    throw new Error('Set SUPABASE_URL to the project origin. Use HTTPS outside loopback.');
+    throw new Error('Use an HTTP origin with HTTPS outside loopback.');
   }
+  return origin;
+}
+
+function createSupabaseVerifier({url, apiKey, fetchUser = fetch}) {
+  const origin = httpOrigin(url);
   if (!apiKey) throw new Error('Set SUPABASE_PUBLISHABLE_KEY.');
   const endpoint = new URL('/auth/v1/user', origin);
   return async function verify(token) {
@@ -51,12 +56,12 @@ function messageCursor(url) {
   return cursor;
 }
 
-async function messageBody(request) {
+async function readJson(request) {
   if (request.headers.get('content-type')?.split(';')[0].trim().toLowerCase() !== 'application/json') {
     throw new HttpError(415, 'expected_json');
   }
   if (Number(request.headers.get('content-length')) > MAX_BODY) throw new HttpError(413, 'body_too_large');
-  if (!request.body) throw new HttpError(422, 'invalid_message');
+  if (!request.body) throw new HttpError(400, 'invalid_json');
   const reader = request.body.getReader();
   const decoder = new TextDecoder('utf-8', {fatal:true});
   let body = '', size = 0;
@@ -69,16 +74,20 @@ async function messageBody(request) {
       body += decoder.decode(value, {stream:true});
     }
     body += decoder.decode();
-    const data = JSON.parse(body);
-    if (typeof data?.body !== 'string' || typeof data?.client_message_id !== 'string' ||
-        Object.keys(data).some(key => !['body','client_message_id'].includes(key)) ||
-        !UUID.test(data.client_message_id) || !data.body.trim() || [...data.body.trim()].length > 2000 ||
-        data.body.includes('\0') || !data.body.isWellFormed()) throw new HttpError(422, 'invalid_message');
-    return data;
+    return JSON.parse(body);
   } catch (error) {
     if (error instanceof HttpError) throw error;
     throw new HttpError(400, 'invalid_json');
   } finally { reader.releaseLock(); }
+}
+
+async function messageBody(request) {
+  const data = await readJson(request);
+  if (typeof data?.body !== 'string' || typeof data?.client_message_id !== 'string' ||
+      Object.keys(data).some(key => !['body','client_message_id'].includes(key)) ||
+      !UUID.test(data.client_message_id) || !data.body.trim() || [...data.body.trim()].length > 2000 ||
+      data.body.includes('\0') || !data.body.isWellFormed()) throw new HttpError(422, 'invalid_message');
+  return data;
 }
 
 function createChatHandler({verify, db}) {
@@ -127,4 +136,4 @@ function createChatHandler({verify, db}) {
   };
 }
 
-export {createSupabaseVerifier, createChatHandler};
+export {createSupabaseVerifier, createChatHandler, httpOrigin, HttpError, json, readJson};

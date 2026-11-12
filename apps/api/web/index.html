@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpotMe · Matches</title>
+  <link rel="stylesheet" href="/app.css">
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <header><div class="header-inner"><a href="/" class="logo">SpotMe<span>••</span></a><button id="sign-out" hidden>Sign out</button></div></header>
+  <main>
+    <p id="notice" role="status">Checking your session…</p>
+    <section class="panel sign-in" id="auth" hidden>
+      <h1>Sign in</h1>
+      <p class="subtle">Sign in to see your matches and messages.</p>
+      <form id="credentials" method="post" action="/browser/sign-in">
+        <label>Email <input type="email" name="email" autocomplete="username" maxlength="254" required></label>
+        <label>Password <input type="password" name="password" autocomplete="current-password" maxlength="1024" required></label>
+        <button class="primary" type="submit">Sign in</button>
+      </form>
+    </section>
+    <div id="workspace" class="workspace" hidden>
+      <section class="panel" aria-labelledby="matches-heading">
+        <div class="title-row"><h1 id="matches-heading">Matches</h1><button id="refresh-matches">Refresh</button></div>
+        <div id="matches" class="match-list"></div>
+        <button id="more-matches" hidden>Load more matches</button>
+      </section>
+      <section class="panel" id="conversation" aria-labelledby="conversation-title" hidden>
+        <div class="title-row"><h2 id="conversation-title" tabindex="-1"></h2><button id="refresh-chat">Refresh</button></div>
+        <div id="messages" class="messages" aria-label="Message history"></div>
+        <button id="more-messages" hidden>Load more messages</button>
+        <form id="compose">
+          <label>Message <textarea name="body" rows="3" maxlength="2000" required></textarea></label>
+          <button class="primary" type="submit">Send</button>
+        </form>
+        <details>
+          <summary>Manage conversation</summary>
+          <div class="actions"><button class="danger" id="unmatch">Unmatch</button><button class="danger" id="block">Block</button></div>
+          <div id="confirm" hidden>
+            <p id="confirm-text"></p>
+            <div class="actions"><button id="cancel">Cancel</button><button class="danger" id="confirm-action"></button></div>
+          </div>
+        </details>
+      </section>
+    </div>
+    <noscript>Enable JavaScript to sign in and use SpotMe chat.</noscript>
+  </main>
+</body>
+</html>
