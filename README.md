@@ -4,7 +4,7 @@
 
 An adult dating product built around training compatibility, with iOS, Android, and a fully usable desktop website.
 
-This repository contains the researched product handoff, a browser demo using fictional accounts, and private database migrations for profiles, the gym directory, matching, and chat.
+This repository contains the researched product handoff, a browser demo using fictional accounts, and a backend for chat and match management.
 
 ## Start here
 
@@ -12,7 +12,7 @@ From the repository root, run `node tools/build-local.mjs` with Node.js 22 or la
 
 Start as Alex and like Maya in Discover. Switch the sample account to Maya and like Alex, then open Matches to send a message. Switch back to Alex to read it. Try My profile to change who sees training days and gyms, or select gyms across cities and submit a missing gym in Gyms. Suggestions appear only for the sample account that submitted them. The demo also supports reporting, blocking, and unmatching.
 
-The [original discovery prototype](apps/web/discovery-preview.html) remains available as a single-card interaction reference. See the [database foundation](supabase/README.md) for the migration and the checks needed before connecting a hosted database.
+The [original discovery prototype](apps/web/discovery-preview.html) is a single-card interaction reference. See the [chat API setup](apps/api/README.md) and [database checks](supabase/README.md) to run the backend against a development project.
 
 Give the next implementation agent [the master prompt](docs/00-ai-builder-prompt.md), then have it read the linked specifications before coding.
 
