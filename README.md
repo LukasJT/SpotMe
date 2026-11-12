@@ -4,7 +4,7 @@
 
 An adult dating product built around training compatibility, with iOS, Android, and a fully usable desktop website.
 
-This repository contains the researched product handoff, a browser demo using fictional accounts, and the first private database migration.
+This repository contains the researched product handoff, a browser demo using fictional accounts, and private database migrations for profiles, the gym directory, matching, and chat.
 
 ## Start here
 
