@@ -1,0 +1,10 @@
+{
+  "name": "spotme-database-tests",
+  "private": true,
+  "scripts": {
+    "test": "node --test *.test.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.16"
+  }
+}

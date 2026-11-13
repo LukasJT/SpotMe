@@ -1,0 +1,10 @@
+{
+  "name": "spotme-chat-api",
+  "private": true,
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "pg": "8.23.1"
+  }
+}
