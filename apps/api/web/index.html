@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SpotMe · Matches</title>
+  <title>SpotMe</title>
   <link rel="stylesheet" href="/app.css">
   <script defer src="/app.js"></script>
 </head>
@@ -13,7 +13,7 @@
     <p id="notice" role="status">Checking your session…</p>
     <section class="panel sign-in" id="auth" hidden>
       <h1>Sign in</h1>
-      <p class="subtle">Sign in to see your matches and messages.</p>
+      <p class="subtle">Sign in to find people who share your training interests.</p>
       <form id="credentials" method="post" action="/browser/sign-in">
         <label>Email <input type="email" name="email" autocomplete="username" maxlength="254" required></label>
         <label>Password <input type="password" name="password" autocomplete="current-password" maxlength="1024" required></label>
@@ -21,7 +21,41 @@
       </form>
     </section>
     <div id="workspace" class="workspace" hidden>
-      <section class="panel" aria-labelledby="matches-heading">
+      <nav class="panel member-nav" aria-label="Member pages"><button id="tab-discover">Discover</button><button id="tab-profile">My profile</button><button id="tab-matches">Matches</button></nav>
+      <section class="panel member-page" id="member-profile" hidden>
+        <h1>My profile</h1><p id="profile-state" class="subtle"></p>
+        <form id="profile-form">
+          <label>Name <input name="name" required minlength="2" maxlength="40"></label>
+          <label>Date of birth <input name="date_of_birth" type="date" required></label>
+          <label>City <select name="city_id" required></select></label>
+          <label>Bio <textarea name="bio" maxlength="500"></textarea></label>
+          <label>Looking for <input name="intent" maxlength="80"></label>
+          <label>Workout split <input name="split" maxlength="80" placeholder="Upper / lower"></label>
+          <fieldset><legend>Training days</legend><div id="weekdays" class="choices"></div></fieldset>
+          <label>Who can see your training days? <select name="days_audience"><option value="private">Only me</option><option value="matches">My matches</option><option value="discovery">People in Discover</option></select></label>
+          <label>Gender <select name="gender" required><option value="">Select</option><option value="woman">Woman</option><option value="man">Man</option><option value="nonbinary">Nonbinary</option><option value="another_identity">Another identity</option></select></label>
+          <fieldset><legend>Who would you like to meet?</legend><div id="seeking" class="choices"></div></fieldset>
+          <div class="actions"><label>Minimum age <input name="minimum_age" type="number" min="18" max="99" value="18" required></label><label>Maximum age <input name="maximum_age" type="number" min="18" max="99" value="99" required></label></div>
+          <label class="choice"><input type="checkbox" name="paused"> Pause discovery</label>
+          <fieldset><legend>Selected gyms</legend><div id="selected-gyms"></div></fieldset>
+          <label>Gym city <select id="gym-city"></select></label>
+          <label>Gym name <input id="gym-search" maxlength="80" type="search"></label>
+          <div class="actions"><button type="button" id="find-gyms">Find gyms</button><button type="button" id="more-gyms" hidden>More gyms</button></div>
+          <div id="gym-results" class="match-list"></div>
+          <button class="primary" type="submit">Save profile</button>
+        </form>
+        <details><summary>Suggest a missing gym</summary>
+          <form id="suggest-gym"><label>City <select name="city_id" required></select></label>
+            <label>Gym name <input name="name" maxlength="160" required></label><label>Address <input name="address" maxlength="240" required></label>
+            <button class="primary" type="submit">Submit for review</button></form>
+        </details>
+      </section>
+      <section class="panel member-page discover-page" id="discovery" hidden>
+        <div class="title-row"><h1>Discover</h1><button id="refresh-deck">Refresh</button></div>
+        <article id="live-card" tabindex="0" aria-label="Scrollable profile"></article>
+        <div id="swipe-actions" class="actions" hidden><button id="pass">Pass</button><button class="primary" id="like">Like</button></div>
+      </section>
+      <section id="match-panel" class="panel" aria-labelledby="matches-heading">
         <div class="title-row"><h1 id="matches-heading">Matches</h1><button id="refresh-matches">Refresh</button></div>
         <div id="matches" class="match-list"></div>
         <button id="more-matches" hidden>Load more matches</button>
@@ -36,6 +70,7 @@
         </form>
         <details>
           <summary>Manage conversation</summary>
+          <div id="conversation-report"></div>
           <div class="actions"><button class="danger" id="unmatch">Unmatch</button><button class="danger" id="block">Block</button></div>
           <div id="confirm" hidden>
             <p id="confirm-text"></p>

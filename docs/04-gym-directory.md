@@ -1,5 +1,7 @@
 # SpotMe gym directory and Ontario launch geography
 
+Run `node tools/prepare-gyms.mjs records.json municipalities.json` to review an already licensed export without fetching or importing anything. Records use `provider`, `provider_record_id`, `licence_reference`, `municipality_code`, `display_name`, `street_address`, and `observed_at`. The municipality manifest supplies Ontario `province` and `municipality_code` values. Results keep distinct branches separate, flag probable duplicates for review, and leave accepted records pending.
+
 Research checked November 11, 2026. This is an implementation brief; no gym records have been scraped or imported. Product rules and acceptance thresholds below are proposed SpotMe decisions, not claims that a vendor guarantees them.
 
 ## 1. Outcome and source decision
