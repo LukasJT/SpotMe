@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en-CA" data-spotme-desktop-only>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'">
+  <title>SpotMe | Web demo</title>
+  <script src="./device.js"></script>
+  <style>
+:root{color-scheme:light;--canvas:#f7f8fa;--surface:#fff;--ink:#111827;--muted:#4b5563;--line:#e5e7eb;--control:#6b7280;--primary:#2563eb;--soft:#eff6ff;--danger:#dc2626;font:16px/1.5 Inter,system-ui,sans-serif;color:var(--ink);background:var(--canvas)}
+*{box-sizing:border-box}body{margin:0}h1,h2,h3,p{margin:0}p+p{margin-top:8px}button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.48}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,article:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.site-header{background:var(--surface);border-bottom:1px solid var(--line)}.header-inner{max-width:1020px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:16px 24px}.logo{font-size:29px;letter-spacing:-1.3px;line-height:1.05}.logo span{color:var(--primary);margin-left:4px}.tagline,.quiet,.demo-note{font-size:13px;color:var(--muted)}.account{font-size:13px;color:var(--muted)}
+.layout{max-width:1020px;margin:24px auto;display:grid;grid-template-columns:172px minmax(0,1fr);gap:24px;padding:0 24px}.layout nav{display:flex;flex-direction:column;gap:6px;align-self:start}.layout nav button{border-color:transparent;background:transparent;text-align:left}.layout nav button[aria-current=page]{background:var(--soft);color:var(--primary)}main{min-width:0}.screen{max-width:590px;margin:auto}.discover{max-width:440px}.title-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}h1{font-size:26px;letter-spacing:-.6px}h2{font-size:17px}h3{font-size:15px}
+.panel,.card,.person-row{background:var(--surface);border:1px solid var(--line);border-radius:16px}.panel{padding:18px}.stack{display:grid;gap:14px}.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}label.field{display:grid;gap:5px;font-size:14px;font-weight:600}input:not([type=checkbox]),select,textarea{max-width:100%;min-height:44px;border:1px solid var(--control);background:var(--surface);border-radius:9px;padding:8px 10px}textarea{resize:vertical;min-height:88px}fieldset{margin:0;border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}legend{font-weight:650}input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary);margin:0;flex:none}.choice{display:flex;align-items:center;gap:8px;min-height:44px}.choice span{overflow-wrap:anywhere}
+button{min-height:44px;background:var(--surface);border:1px solid var(--control);border-radius:10px;padding:7px 12px;font-weight:650}.primary{color:#fff;background:var(--primary);border-color:var(--primary)}.primary:hover{background:#1d4ed8}.danger{color:var(--danger)}.link{border-color:transparent;background:transparent;text-decoration:underline}.card{overflow:hidden;box-shadow:0 6px 25px #1118270d}.card-body{max-height:min(59vh,510px);min-height:210px;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y pinch-zoom;scrollbar-gutter:stable}.card-body:focus-visible{outline-offset:-4px}.portrait{position:relative;height:clamp(165px,28vh,242px);display:grid;place-items:center;background:#e6eef9;color:#40577b}.portrait strong{font-size:58px;letter-spacing:-3px;user-select:none}.portrait .prev,.portrait .next{position:absolute;top:50%;transform:translateY(-50%);width:44px;padding:0}.portrait .prev{left:10px}.portrait .next{right:10px}.photo-label{position:absolute;bottom:10px;border-radius:20px;background:var(--surface);padding:3px 10px;font-size:12px}.card-section{padding:12px 17px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.card-section h2{font-size:23px}.card-section p{margin-top:3px}.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.chips span{background:#f3f4f6;border-radius:20px;padding:4px 9px;font-size:13px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 14px;border-top:1px solid var(--line)}details summary{cursor:pointer;padding:7px 0}details form{margin-top:8px}.person-row{padding:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}.person-row strong{overflow-wrap:anywhere}.messages{display:grid;gap:8px;max-height:330px;overflow:auto}.bubble{justify-self:start;background:#f3f4f6;border-radius:12px;padding:8px 12px;max-width:90%;white-space:pre-wrap;overflow-wrap:anywhere}.bubble.own{justify-self:end;background:var(--soft)}.notice{position:sticky;bottom:10px;margin:12px auto;max-width:590px;background:var(--surface);border:1px solid var(--control);border-radius:12px;padding:10px 14px;box-shadow:0 3px 12px #11182719}.notice.error{color:var(--danger)}.demo-note{text-align:center;padding:12px 20px 24px}
+@media(max-width:680px){.header-inner{padding:12px 16px}.layout{grid-template-columns:minmax(0,1fr);gap:14px;padding:0 12px;margin-top:10px}.layout nav{flex-direction:row;flex-wrap:wrap;justify-content:center}.layout nav button{text-align:center}.notice{margin-inline:12px}}
+@media(max-width:370px){.two{grid-template-columns:1fr}.layout nav{gap:0}.layout nav button{padding-inline:7px}}
+
+html[data-spotme-view="mobile"] body { display: none; }
+.site-header { position: sticky; top: 0; z-index: 2; }
+.logo { color: var(--ink); text-decoration: none; }
+.header-inner { max-width: 1280px; }
+.account { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.layout { max-width: 1280px; grid-template-columns: 228px minmax(0, 1fr); margin-block: 0; gap: 30px; }
+.layout nav {
+  min-height: calc(100svh - 122px);
+  border-inline-end: 1px solid var(--line);
+  padding: 32px 20px 24px 0;
+}
+#screen { padding-block: 28px 8px; }
+.discover { max-width: 430px; }
+.card { box-shadow: 0 14px 42px #142d561a; border-radius: 22px; }
+.card-body { max-height: min(62svh, 570px); }
+.portrait { height: clamp(190px, 34svh, 290px); }
+.actions { padding: 12px 14px; }
+.actions button { border-radius: 999px; }
+@media (max-width: 720px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .layout nav { min-height: 0; border: 0; padding: 12px 0 0; flex-direction: row; flex-wrap: wrap; }
+  #screen { padding-top: 12px; }
+}
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div><a class="logo" href="./">SpotMe<span>••</span></a><p class="tagline">Train. Match. Connect.</p></div>
+      <label class="account">Sample account <select id="account"></select></label>
+    </div>
+  </header>
+  <div class="layout">
+    <nav aria-label="SpotMe" id="navigation"></nav>
+    <main id="screen" aria-label="SpotMe demo"></main>
+  </div>
+  <p class="notice" id="notice" role="status" hidden></p>
+  <footer class="demo-note">Web demo · Fictional profiles and gyms · Saved in this browser</footer>
+  <script type="module">
+const cities = ['Toronto', 'Mississauga', 'Hamilton', 'Kitchener', 'Waterloo', 'Cambridge', 'Barrie'];
+const workouts = ['Upper / lower', 'Push / pull / legs', 'Full body', 'Other'];
+const audiences = ['private', 'matches', 'discovery'];
+const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const gyms = cities.map((city, index) => ({id:`gym-${index}`, name:`${city} Sample Training Club`, city, address:'Fictional listing for local testing'}));
+const ids = ['alex', 'maya', 'jordan', 'sam'];
+const key = (a, b) => [a, b].sort().join(':');
+const fail = message => { throw new Error(message); };
+const short = (value, limit) => String(value ?? '').trim().slice(0, limit);
+const canSee = (visibility, matched) => visibility === 'discovery' || (visibility === 'matches' && matched);
+
+function createDemo() {
+  const profiles = {
+    alex: {name:'Alex', age:28, city:'Kitchener', bio:'I lift four days a week and spend weekends on the trails. Always up for a post-workout coffee.', split:'Upper / lower', days:['Mon','Tue','Thu','Sat'], gymIds:['gym-3','gym-4']},
+    maya: {name:'Maya', age:27, city:'Waterloo', bio:'Happiest after a run or a good group class. Currently looking for the best ramen in Waterloo.', split:'Full body', days:['Mon','Wed','Fri'], gymIds:['gym-4']},
+    jordan: {name:'Jordan', age:30, city:'Cambridge', bio:'Getting back into lifting and looking for someone to explore new trails with.', split:'Push / pull / legs', days:['Tue','Thu','Sun'], gymIds:['gym-5']},
+    sam: {name:'Sam', age:29, city:'Hamilton', bio:'Weekend hiking, early workouts, and a soft spot for terrible gym puns.', split:'Full body', days:['Tue','Sat'], gymIds:['gym-2']}
+  };
+  for (const id of ids) Object.assign(profiles[id], {id, intent:'Long-term relationship', interests:['Fitness','Outdoors'], gymVisibility:'private', dayVisibility:'private', paused:false, photos: id === 'alex' ? 6 : 3});
+  profiles.alex.gymVisibility = 'discovery';
+  profiles.alex.dayVisibility = 'discovery';
+  return {version:1, profiles, preferences:{}, decisions:{}, matches:{}, excluded:{}, suggestions:[], reports:[]};
+}
+
+function project(state, viewer, subject) {
+  const profile = state.profiles[subject];
+  if (!profile || !state.profiles[viewer] || state.excluded[key(viewer, subject)]) return null;
+  const matched = Boolean(state.matches[key(viewer, subject)]);
+  if (viewer !== subject && profile.paused && !matched) return null;
+  const {id,name,age,city,bio,split,intent,interests,photos,days,gymIds} = profile;
+  return {id,name,age,city,bio,split,intent,interests:[...interests],photos,frequency:days.length,
+    days: viewer === subject || canSee(profile.dayVisibility, matched) ? [...days] : [],
+    gyms: viewer === subject || canSee(profile.gymVisibility, matched) ? gyms.filter(gym => gymIds.includes(gym.id)).map(({id,name,city})=>({id,name,city})) : []};
+}
+
+function deck(state, viewer) {
+  if (!state.profiles[viewer] || state.profiles[viewer].paused) return [];
+  const filter = state.preferences[viewer];
+  return ids.filter(id => id !== viewer && !state.decisions[`${viewer}:${id}`] && !state.matches[key(viewer,id)])
+    .map(id => project(state, viewer, id)).filter(profile => profile && (!filter || profile.city === filter));
+}
+
+function update(state, viewer, action) {
+  if (!state.profiles[viewer]) fail('Choose a sample account.');
+  const draft = structuredClone(state);
+  const profile = draft.profiles[viewer];
+  const target = action.target;
+  const pair = key(viewer, target);
+  let event = '';
+  switch (action.type) {
+    case 'profile': {
+      const value = action.value;
+      const name = short(value.name, 40);
+      if (name.length < 2 || !cities.includes(value.city) || !workouts.includes(value.split)) fail('Enter a name, city and workout split.');
+      if (!audiences.includes(value.gymVisibility) || !audiences.includes(value.dayVisibility)) fail('Choose who can see your training details.');
+      const gymIds = [...new Set(value.gymIds)];
+      if (gymIds.length > 10 || gymIds.some(id => !gyms.some(gym => gym.id === id))) fail('Select up to ten approved gyms.');
+      Object.assign(profile, {name, city:value.city, split:value.split, bio:short(value.bio,500), intent:short(value.intent,80),
+        interests:[...new Set(value.interests.map(item => short(item,32)).filter(Boolean))].slice(0,6),
+        gymIds, days:weekdays.filter(day=>value.days.includes(day)), gymVisibility:value.gymVisibility,
+        dayVisibility:value.dayVisibility, paused:Boolean(value.paused)});
+      event = 'Profile saved.';
+      break;
+    }
+    case 'filter':
+      if (action.city && !cities.includes(action.city)) fail('Choose a supported city.');
+      draft.preferences[viewer] = action.city || '';
+      break;
+    case 'decision': {
+      if (!['like','pass'].includes(action.decision)) fail('Choose Like or Pass.');
+      const decisionKey = `${viewer}:${target}`;
+      if (!draft.decisions[decisionKey]) {
+        if (!deck(state,viewer).some(candidate => candidate.id === target)) fail('This profile is no longer in your deck.');
+        draft.decisions[decisionKey] = action.decision;
+        if (action.decision === 'like' && draft.decisions[`${target}:${viewer}`] === 'like') {
+          draft.matches[pair] = {members:[viewer,target], messages:[]};
+          event = `You matched with ${draft.profiles[target].name}. Open Matches to say hello.`;
+        }
+      }
+      break;
+    }
+    case 'message': {
+      const match = draft.matches[pair];
+      if (!match || draft.excluded[pair]) fail('This conversation is unavailable.');
+      const body = short(action.body, 2000);
+      if (!body || !action.id) fail('Enter a message.');
+      if (!match.messages.some(message => message.sender === viewer && message.id === action.id)) {
+        match.messages.push({id:action.id,sender:viewer,body,createdAt:action.createdAt});
+      }
+      break;
+    }
+    case 'unmatch':
+    case 'block':
+      if (target === viewer || !draft.profiles[target]) fail('Choose an available profile.');
+      if (action.type === 'unmatch' && !draft.matches[pair]) fail('This match is unavailable.');
+      draft.excluded[pair] = true;
+      delete draft.matches[pair];
+      event = action.type === 'block' ? 'Profile blocked.' : 'Match removed.';
+      break;
+    case 'suggest': {
+      const name = short(action.name,80);
+      const address = short(action.address,160);
+      if (!name || !address || !cities.includes(action.city)) fail('Enter a gym name, address and city.');
+      const signature = value => [value.name,value.address,value.city].map(part => part.toLowerCase().replace(/\s+/g,' ')).join('|');
+      const candidate = {name,address,city:action.city,owner:viewer,status:'pending'};
+      if (draft.suggestions.some(item => item.owner === viewer && signature(item) === signature(candidate))) fail('You already suggested that gym.');
+      draft.suggestions.push(candidate);
+      event = 'Gym suggestion saved for review.';
+      break;
+    }
+    case 'report': {
+      const reason = short(action.reason,500);
+      if (viewer === target || !project(state,viewer,target) || !reason) fail('Enter a reason to report this profile.');
+      draft.reports.push({reporter:viewer,subject:target,reason});
+      event = 'Report saved in this demo.';
+      break;
+    }
+    default: fail('Unknown action.');
+  }
+  return {state:draft,event};
+}
+
+export {cities, workouts, audiences, weekdays, gyms, ids, key, createDemo, project, deck, update};
+
+if (document.documentElement.dataset.spotmeView !== 'mobile') {
+
+const storageKey = 'spotme-local-demo-v1';
+const screen = document.querySelector('#screen');
+const notice = document.querySelector('#notice');
+const account = document.querySelector('#account');
+const navigation = document.querySelector('#navigation');
+let state = createDemo();
+let viewer = 'alex';
+let page = 'Discover';
+let conversation = '';
+let gymCity = '';
+let persistent = true;
+try {
+  const saved = JSON.parse(localStorage.getItem(storageKey) ?? 'null');
+  if (saved?.state?.version === 1 && ids.every(id => saved.state.profiles?.[id])) {
+    state = saved.state;
+    if (ids.includes(saved.viewer)) viewer = saved.viewer;
+  }
+} catch { persistent = false; }
+
+function element(tag, attrs = {}, ...children) {
+  const node = document.createElement(tag);
+  for (const [name,value] of Object.entries(attrs)) {
+    if (name.startsWith('on')) node.addEventListener(name.slice(2), value);
+    else if (value === true) node.setAttribute(name,'');
+    else if (value !== false && value != null) node.setAttribute(name,String(value));
+  }
+  node.append(...children.filter(child => child != null));
+  return node;
+}
+const button = (label, onclick, className = '') => element('button',{type:'button',onclick,class:className},label);
+const text = (label, className = '') => element('p',{class:className},label);
+const panel = (...children) => element('div',{class:'panel stack'},...children);
+const title = (label, extra) => element('div',{class:'title-row'},element('h1',{},label),extra);
+const labels = {private:'Only me',matches:'My matches',discovery:'People in Discover'};
+const select = (name, values, selected, label = value => value) => element('select',{name},...values.map(value => element('option',{value,selected:value === selected},label(value))));
+const field = (label, input) => element('label',{class:'field'},label,input);
+const check = (label, name, value, checked) => element('label',{class:'choice'},element('input',{type:'checkbox',name,value,checked}),element('span',{},label));
+const submit = label => element('button',{type:'submit',class:'primary'},label);
+const form = (handler, ...children) => element('form',{class:'stack',onsubmit:event => {event.preventDefault();handler(new FormData(event.currentTarget));}},...children);
+
+function announce(message, error = false) {
+  notice.hidden = !message;
+  notice.classList.toggle('error',error);
+  notice.textContent = message;
+}
+function save() {
+  try {
+    localStorage.setItem(storageKey,JSON.stringify({state,viewer}));
+    persistent = true;
+  } catch { persistent = false; }
+  document.querySelector('.demo-note').textContent = `Web demo · Fictional profiles and gyms · ${persistent ? 'Saved in this browser' : 'Changes last until reload'}`;
+}
+function act(action, {rerender = true, focus, fallback = ''} = {}) {
+  try {
+    const result = update(state,viewer,action);
+    state = result.state;
+    save();
+    if (rerender) render(focus);
+    announce([result.event || fallback,!persistent ? 'Browser storage is unavailable.' : ''].filter(Boolean).join(' '));
+    return true;
+  } catch (error) { announce(error.message,true); return false; }
+}
+function navigate(next) {
+  page = next;
+  conversation = '';
+  announce('');
+  render('h1');
+}
+function render(focus) {
+  account.replaceChildren(...ids.map(id => element('option',{value:id,selected:id === viewer},state.profiles[id].name)));
+  navigation.replaceChildren(...['Discover','Matches','My profile','Gyms'].map(label => {
+    const item = button(label,() => navigate(label));
+    if (label === page) item.setAttribute('aria-current','page');
+    return item;
+  }));
+  const view = {Discover:showDiscover,Matches:showMatches,'My profile':showProfile,Gyms:showGyms}[page]();
+  screen.replaceChildren(view);
+  if (focus) {
+    const target = screen.querySelector(focus) ?? screen.querySelector('h1');
+    if (target && !target.matches('button,input,select,textarea,[tabindex]')) target.setAttribute('tabindex','-1');
+    target?.focus({preventScroll:true});
+  }
+}
+
+function cardSection(label, description, chips = []) {
+  return element('section',{class:'card-section'},element('h3',{},label),description ? text(description) : null,
+    chips.length ? element('div',{class:'chips'},...chips.map(item => element('span',{},item))) : null);
+}
+function safety(target, inMatch = false) {
+  const report = form(data => act({type:'report',target,reason:data.get('reason')},{focus:'h1'}),
+    field('Report reason',element('textarea',{name:'reason',required:true,maxlength:500})),submit('Save report'));
+  return element('details',{class:'card-section'},element('summary',{},'Report or block'),report,
+    element('div',{class:'row'},inMatch ? button('Unmatch',() => act({type:'unmatch',target},{focus:'h1'}),'danger') : null,
+      button('Block profile',() => act({type:'block',target},{focus:'h1'}),'danger')));
+}
+function showDiscover() {
+  const city = state.preferences[viewer] ?? '';
+  const filter = select('city',['',...cities],city,value => value || 'All sample cities');
+  filter.addEventListener('change',() => act({type:'filter',city:filter.value},{focus:'select[name=city]'}));
+  const header = title('Discover',field('City',filter));
+  const candidate = deck(state,viewer)[0];
+  if (!candidate) return element('div',{class:'screen discover'},header,panel(element('h2',{},state.profiles[viewer].paused ? 'Discovery is paused' : 'No new profiles'),text(state.profiles[viewer].paused ? 'Resume discovery in My profile to see the deck.' : 'Try another city or switch sample accounts.')));
+
+  const decide = decision => act({type:'decision',target:candidate.id,decision},{focus:'.card-body',fallback:`${decision === 'like' ? 'Liked' : 'Passed on'} ${candidate.name}.`});
+  const initials = candidate.name.split(/\s+/).slice(0,2).map(word=>word[0]).join('').toUpperCase();
+  const label = element('span',{class:'photo-label','aria-live':'polite'});
+  const palette = ['#e6eef9','#e9eef3','#e9f1ef','#f1ebf6','#f2ede7','#e8eff5'];
+  let index = 0;
+  const previous = button('‹',() => setPhoto(index-1),'prev');
+  previous.setAttribute('aria-label','Previous photo');
+  const next = button('›',() => setPhoto(index+1),'next');
+  next.setAttribute('aria-label','Next photo');
+  const portrait = element('div',{class:'portrait'},element('strong',{'aria-hidden':'true'},initials),previous,next,label);
+  function setPhoto(position) {
+    index = Math.max(0,Math.min(candidate.photos-1,position));
+    portrait.style.backgroundColor = palette[index];
+    label.textContent = `Photo placeholder ${index+1} of ${candidate.photos}`;
+    previous.disabled = index === 0;
+    next.disabled = index === candidate.photos-1;
+  }
+  setPhoto(0);
+  const body = element('article',{class:'card-body',tabindex:0,'aria-label':`${candidate.name}’s scrollable profile`},portrait,
+    element('section',{class:'card-section'},element('h2',{},`${candidate.name}, ${candidate.age}`),text(candidate.city,'quiet')),
+    cardSection('About me',candidate.bio),cardSection('Looking for',candidate.intent),
+    cardSection('Training split',`${candidate.split} · ${candidate.frequency} days a week`),
+    candidate.days.length ? cardSection('Typical week','',candidate.days) : null,
+    candidate.gyms.length ? cardSection('Where I train','',candidate.gyms.map(gym=>gym.name)) : null,
+    cardSection('Interests','',candidate.interests),safety(candidate.id));
+  wireSwipe(body,decide);
+  return element('div',{class:'screen discover'},header,element('div',{class:'card'},body,
+    element('div',{class:'actions'},button('Pass',()=>decide('pass')),button('Like',()=>decide('like'),'primary'))));
+}
+
+function wireSwipe(body, decide) {
+  let gesture;
+  body.addEventListener('pointerdown',event => {
+    if (!event.isPrimary || event.button !== 0 || event.target.closest('button,input,select,textarea,summary,label,a')) return;
+    gesture = {id:event.pointerId,x:event.clientX,y:event.clientY,direction:''};
+  });
+  body.addEventListener('pointermove',event => {
+    if (!gesture || gesture.id !== event.pointerId || gesture.direction) return;
+    const x = Math.abs(event.clientX-gesture.x), y = Math.abs(event.clientY-gesture.y);
+    if (Math.max(x,y) >= 12) gesture.direction = x > 1.6*y ? 'horizontal' : 'vertical';
+  });
+  body.addEventListener('pointerup',event => {
+    if (!gesture || gesture.id !== event.pointerId) return;
+    const {x,y,direction} = gesture;
+    gesture = undefined;
+    const distance = event.clientX-x;
+    if (direction === 'horizontal' && Math.abs(distance) >= 70 && Math.abs(distance) > 1.6*Math.abs(event.clientY-y) && !window.getSelection()?.toString()) decide(distance > 0 ? 'like' : 'pass');
+  });
+  body.addEventListener('pointercancel',()=>{gesture = undefined;});
+  body.addEventListener('pointerleave',event=>{if (event.pointerType === 'mouse') gesture = undefined;});
+}
+
+function showProfile() {
+  const p = state.profiles[viewer];
+  const profileForm = form(data => act({type:'profile',value:{
+    name:data.get('name'),city:data.get('city'),bio:data.get('bio'),intent:data.get('intent'),split:data.get('split'),
+    interests:data.get('interests').split(','),days:data.getAll('days'),gymIds:p.gymIds,
+    gymVisibility:data.get('gymVisibility'),dayVisibility:data.get('dayVisibility'),paused:data.has('paused')
+  }},{focus:'h1'}),
+    element('div',{class:'two'},field('Display name',element('input',{name:'name',value:p.name,required:true,minlength:2,maxlength:40})),field('City',select('city',cities,p.city))),
+    field('Bio',element('textarea',{name:'bio',maxlength:500},p.bio)),field('Looking for',element('input',{name:'intent',value:p.intent,maxlength:80})),
+    field('Interests, separated by commas',element('input',{name:'interests',value:p.interests.join(', '),maxlength:198})),
+    field('Workout split',select('split',workouts,p.split)),
+    element('fieldset',{},element('legend',{},'Typical training days'),element('div',{class:'row'},...weekdays.map(day=>check(day,'days',day,p.days.includes(day))))),
+    element('div',{class:'two'},field('Who sees training days',select('dayVisibility',audiences,p.dayVisibility,value=>labels[value])),field('Who sees gyms',select('gymVisibility',audiences,p.gymVisibility,value=>labels[value]))),
+    check('Pause discovery','paused','yes',p.paused),submit('Save profile'));
+  return element('div',{class:'screen'},title('My profile'),panel(profileForm));
+}
+
+function showGyms() {
+  const p = state.profiles[viewer];
+  const chosen = new Set(p.gymIds);
+  const city = select('city',['',...cities],gymCity,value=>value || 'All sample cities');
+  const list = element('div',{});
+  const picked = element('p',{class:'quiet'});
+  function showOptions() {
+    picked.textContent = `${chosen.size} selected across all cities`;
+    list.replaceChildren(...gyms.filter(gym=>!city.value || gym.city === city.value).map(gym=>{
+      const option = check(`${gym.name} · ${gym.city}`,'gyms',gym.id,chosen.has(gym.id));
+      option.querySelector('input').addEventListener('change',event=>{
+        if (event.target.checked) chosen.add(gym.id); else chosen.delete(gym.id);
+        picked.textContent = `${chosen.size} selected across all cities`;
+      });
+      return option;
+    }));
+  }
+  city.addEventListener('change',()=>{gymCity = city.value;showOptions();});
+  showOptions();
+  const selections = form(()=>act({type:'profile',value:{...p,gymIds:[...chosen]}},{focus:'h1'}),field('Browse by city',city),list,picked,submit('Save gyms'));
+  const suggestion = form(data=>act({type:'suggest',name:data.get('name'),address:data.get('address'),city:data.get('city')},{focus:'h1'}),
+    field('Gym name',element('input',{name:'name',required:true,maxlength:80})),field('Street address',element('input',{name:'address',required:true,maxlength:160})),
+    field('City',select('city',cities,p.city)),submit('Suggest gym'));
+  const pending = state.suggestions.filter(item=>item.owner === viewer);
+  return element('div',{class:'screen stack'},title('Gyms'),panel(selections),panel(element('h2',{},'Suggest a missing gym'),suggestion,
+    ...pending.map(item=>text(`${item.name} · ${item.city} · Pending review`,'quiet'))));
+}
+
+function showMatches() {
+  const entries = Object.values(state.matches).filter(match=>match.members.includes(viewer));
+  const match = state.matches[key(viewer,conversation)];
+  const other = match && project(state,viewer,conversation);
+  if (!other) {
+    const cards = entries.map(item=>{
+      const target = item.members.find(id=>id !== viewer);
+      const person = project(state,viewer,target);
+      return element('div',{class:'person-row'},element('strong',{},person.name),button(`Message ${person.name}`,()=>{conversation = target;render('h1');}));
+    });
+    return element('div',{class:'screen stack'},title('Matches'),...(cards.length ? cards : [panel(text('When two people like each other, their match appears here.'))]));
+  }
+  const history = element('div',{class:'messages','aria-label':'Message history'},...match.messages.map(message=>element('p',{class:`bubble${message.sender === viewer ? ' own' : ''}`},`${state.profiles[message.sender].name}: ${message.body}`)));
+  if (!match.messages.length) history.append(text('Say hello to start the conversation.','quiet'));
+  const messageForm = form(data=>act({type:'message',target:conversation,body:data.get('message'),id:crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`,createdAt:new Date().toISOString()},{focus:'textarea[name=message]',fallback:'Message sent.'}),
+    field('Message',element('textarea',{name:'message',required:true,maxlength:2000})),submit('Send message'));
+  const shared = other.days.length || other.gyms.length ? panel(
+    element('h2',{},'Shared training details'),other.days.length ? text(`Training days: ${other.days.join(', ')}`) : null,
+    other.gyms.length ? text(`Gyms: ${other.gyms.map(gym=>gym.name).join(', ')}`) : null) : null;
+  return element('div',{class:'screen stack'},title(other.name,button('All matches',()=>{conversation = '';render('h1');})),shared,panel(history,messageForm),panel(safety(conversation,true)));
+}
+
+account.addEventListener('change',()=>{
+  viewer = account.value;
+  gymCity = '';
+  save();
+  navigate('Discover');
+});
+window.addEventListener('storage',event=>{
+  if (event.key !== storageKey || !event.newValue) return;
+  try {
+    const saved = JSON.parse(event.newValue);
+    if (saved.state?.version !== 1) return;
+    state = saved.state;
+    render();
+    announce('Demo data updated from another tab.');
+  } catch { /* Ignore malformed storage from another page. */ }
+});
+render();
+
+}</script>
+</body>
+</html>

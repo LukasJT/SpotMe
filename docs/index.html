@@ -1,36 +1,127 @@
 <!doctype html>
 <html lang="en-CA">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SpotMe | Gym dating in Southern Ontario</title>
-<meta name="description" content="SpotMe is a gym dating app in development for the Greater Toronto Area, Kitchener–Waterloo, the Golden Horseshoe, and Barrie.">
-<link rel="canonical" href="https://spotmedating.com/">
-<meta property="og:type" content="website">
-<meta property="og:title" content="SpotMe | Train. Match. Connect.">
-<meta property="og:description" content="Gym dating for people who love to train. In development for Southern Ontario.">
-<meta property="og:url" content="https://spotmedating.com/">
-<meta name="theme-color" content="#f9fafb">
-<style>
-* { box-sizing: border-box; }
-body { margin: 0; background: #f9fafb; color: #111827; font: 1rem/1.6 system-ui, sans-serif; }
-main { min-height: 100svh; display: grid; align-items: center; max-width: 70rem; margin: 0 auto; padding: clamp(1rem, 6vw, 5rem); }
-article { background: #fff; border: 1px solid #e5e7eb; border-radius: 1.5rem; padding: clamp(1.5rem, 7vw, 5rem); }
-.brand { color: #2563eb; font-weight: 800; font-size: 1.5rem; margin: 0 0 2rem; }
-h1 { font-size: clamp(2.8rem, 9vw, 6rem); line-height: 1.03; letter-spacing: -.06em; margin: 0; }
-p { max-width: 47ch; }
-.intro { font-size: clamp(1.15rem, 2.5vw, 1.4rem); }
-.status { margin: 2rem 0 0; padding-top: 1.25rem; border-top: 1px solid #e5e7eb; color: #4b5563; }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpotMe | Gym dating in Southern Ontario</title>
+  <meta name="description" content="SpotMe is a gym dating app for people who love to train. Preview the web app for the Greater Toronto Area, Kitchener–Waterloo, the Golden Horseshoe, and Barrie.">
+  <link rel="canonical" href="https://spotmedating.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="SpotMe | Train. Match. Connect.">
+  <meta property="og:description" content="Dating for people who love to train. Built for Southern Ontario.">
+  <meta property="og:url" content="https://spotmedating.com/">
+  <meta property="og:image" content="https://spotmedating.com/hero.jpg">
+  <meta name="theme-color" content="#f7f8fa">
+  <script src="./device.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f7f8fa;
+      --ink: #111827;
+      --muted: #4b5563;
+      --blue: #2563eb;
+      --soft: #eff6ff;
+      --line: #e5e7eb;
+      font: 1rem/1.55 Inter, system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: var(--canvas); color: var(--ink); }
+    a { color: inherit; }
+    a:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
+    .bar {
+      min-height: 76px; padding: 14px clamp(20px, 5.2vw, 88px);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 18px; background: white; border-bottom: 1px solid var(--line);
+    }
+    .logo {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-weight: 850; font-size: 27px; letter-spacing: -.055em; text-decoration: none;
+    }
+    .brand-mark {
+      display: inline-grid; place-items: center; flex: none; width: 38px; height: 38px;
+      border-radius: 12px; background: var(--blue); color: white; font-size: 27px; line-height: 1;
+    }
+    nav { display: flex; align-items: center; gap: clamp(16px, 3vw, 34px); }
+    nav > a { font-size: .93rem; text-decoration: none; font-weight: 650; }
+    nav > a:hover { color: var(--blue); }
+    .button {
+      display: inline-flex; align-items: center; justify-content: center; text-align: center;
+      min-height: 48px; padding: 10px 20px; border-radius: 12px;
+      border: 1px solid var(--blue); background: var(--blue); color: white;
+      text-decoration: none; font-weight: 750;
+    }
+    .button:hover { background: #1d4ed8; color: white; }
+    .button.outline { color: var(--blue); background: white; }
+    .button.outline:hover { background: var(--soft); }
+    .hero {
+      margin: 0 auto; width: min(100%, 1440px); min-height: calc(100svh - 76px);
+      display: grid; grid-template-columns: 1.04fr 1fr; gap: clamp(22px, 5vw, 80px);
+      align-items: center; padding: clamp(28px, 5vw, 88px);
+    }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: clamp(3rem, 7vw, 7.4rem); line-height: .96; letter-spacing: -.075em; }
+    h1 span { display: block; color: var(--blue); }
+    .intro { margin: 22px 0 28px; font-size: clamp(1rem, 1.6vw, 1.24rem); max-width: 38ch; }
+    .hint { color: var(--muted); font-size: .88rem; margin-top: 12px; }
+    .hero-photo {
+      margin: 0; width: 100%; aspect-ratio: 1 / 1.02;
+      background: var(--soft); border-radius: 26px; overflow: hidden;
+    }
+    .hero-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 60%; }
+    .download-panel {
+      width: min(calc(100% - 36px), 900px); margin: 12px auto 36px; padding: clamp(20px, 5vw, 46px);
+      border-radius: 24px; background: white; border: 1px solid var(--line);
+    }
+    .download-panel h2 { font-size: clamp(1.85rem, 5vw, 3rem); line-height: 1.08; letter-spacing: -.05em; }
+    .download-panel > p { margin-top: 13px; color: var(--muted); }
+    .platforms { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; padding: 0; margin: 22px 0 0; }
+    .platforms li {
+      background: var(--soft); border-radius: 12px; padding: 10px 15px;
+      display: grid; min-width: 132px; font-weight: 750;
+    }
+    .platforms small { color: var(--muted); font-weight: 500; }
+    footer { color: var(--muted); font-size: .84rem; text-align: center; padding: 0 18px 24px; }
+    html[data-spotme-view="mobile"] .desktop-only { display: none; }
+    html[data-spotme-view="mobile"] .download-panel { margin-top: clamp(40px, 13svh, 110px); }
+    @media (max-width: 690px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; padding: 28px 18px; }
+      .hero-photo { aspect-ratio: 1.65; }
+      .bar { min-height: 64px; padding-inline: 18px; }
+      .bar .button { padding-inline: 10px; }
+      .bar .download-link { display: none; }
+      html:not([data-spotme-view]) .desktop-only { display: none; }
+    }
+  </style>
 </head>
 <body>
-<main>
-<article>
-<p class="brand">SpotMe</p>
-<h1>Train. Match. Connect.</h1>
-<p class="intro">Dating for people who love to train. Find people who share your gym or get a feel for their training routine before you match.</p>
-<p class="status">In development for the Greater Toronto Area, Kitchener–Waterloo, the Golden Horseshoe, and Barrie.</p>
-</article>
-</main>
+  <header class="bar">
+    <a class="logo" href="./"><span class="brand-mark" aria-hidden="true">+</span>SpotMe</a>
+    <nav class="desktop-only" aria-label="Main navigation">
+      <a class="download-link" href="#download">Download</a>
+      <a class="button outline" href="./demo.html">Open web demo</a>
+    </nav>
+  </header>
+  <main>
+    <section class="hero desktop-only" aria-labelledby="hero-title">
+      <div>
+        <h1 id="hero-title">Train. Match. <span>Connect.</span></h1>
+        <p class="intro">Dating for people who love to train. Discover profiles, see how they work out, and match with someone who shares your routine.</p>
+        <a class="button" href="./demo.html">Try SpotMe on the web</a>
+        <p class="hint">Interactive demo with sample profiles.</p>
+      </div>
+      <figure class="hero-photo">
+        <img src="./hero.jpg" width="840" height="1050" alt="Two people laughing together after a workout" fetchpriority="high">
+      </figure>
+    </section>
+    <section class="download-panel" id="download" aria-labelledby="download-title">
+      <h2 id="download-title">Get the SpotMe app</h2>
+      <p>SpotMe is coming to iOS and Android. Check back here for the download links.</p>
+      <ul class="platforms" aria-label="App availability">
+        <li>App Store <small>Coming soon</small></li>
+        <li>Google Play <small>Coming soon</small></li>
+      </ul>
+    </section>
+  </main>
+  <footer class="desktop-only">Greater Toronto Area · Kitchener–Waterloo · Golden Horseshoe · Barrie</footer>
 </body>
 </html>
