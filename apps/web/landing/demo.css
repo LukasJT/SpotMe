@@ -1,0 +1,23 @@
+html[data-spotme-view="mobile"] body { display: none; }
+.site-header { position: sticky; top: 0; z-index: 2; }
+.logo { color: var(--ink); text-decoration: none; }
+.header-inner { max-width: 1280px; }
+.account { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.layout { max-width: 1280px; grid-template-columns: 228px minmax(0, 1fr); margin-block: 0; gap: 30px; }
+.layout nav {
+  min-height: calc(100svh - 122px);
+  border-inline-end: 1px solid var(--line);
+  padding: 32px 20px 24px 0;
+}
+#screen { padding-block: 28px 8px; }
+.discover { max-width: 430px; }
+.card { box-shadow: 0 14px 42px #142d561a; border-radius: 22px; }
+.card-body { max-height: min(62svh, 570px); }
+.portrait { height: clamp(190px, 34svh, 290px); }
+.actions { padding: 12px 14px; }
+.actions button { border-radius: 999px; }
+@media (max-width: 720px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .layout nav { min-height: 0; border: 0; padding: 12px 0 0; flex-direction: row; flex-wrap: wrap; }
+  #screen { padding-top: 12px; }
+}
