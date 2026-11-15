@@ -15,3 +15,11 @@ test('a stronger candidate gains a bounded score and reversing the outcome rever
   assert.ok(compareStrategies({...sample,controlSuccesses:25,candidateSuccesses:15}).delta<0);
   assert.throws(()=>compareStrategies({...sample,uniqueParticipants:101}),RangeError);
 });
+test('the floor includes exactly 100 opted-in members and cannot be lowered',()=>{
+  const counts={...sample,capacity:100,eligibleMembers:100,optedInMembers:100,uniqueParticipants:80};
+  assert.equal(compareStrategies(counts).eligible,true);
+  assert.equal(compareStrategies({...counts,optedInMembers:99}).eligible,false);
+  assert.equal(compareStrategies({...counts,capacity:99}).eligible,false);
+  assert.equal(compareStrategies({...counts,minimumPool:150}).eligible,false);
+  assert.throws(()=>compareStrategies({...counts,minimumPool:99}),RangeError);
+});

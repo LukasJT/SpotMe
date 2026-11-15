@@ -19,6 +19,22 @@
         <label>Password <input type="password" name="password" autocomplete="current-password" maxlength="1024" required></label>
         <button class="primary" type="submit">Sign in</button>
       </form>
+      <div id="registration" hidden>
+        <details><summary>Create an account</summary>
+          <form id="register-form" method="post" action="/browser/sign-up">
+            <label>Email <input name="email" type="email" autocomplete="username" required maxlength="254"></label>
+            <label>Password <input name="password" type="password" autocomplete="new-password" required minlength="12" maxlength="72"></label>
+            <button class="primary">Send confirmation code</button>
+          </form>
+        </details>
+        <details id="confirm-email-panel"><summary>Confirm your email</summary>
+          <form id="confirm-email-form" method="post" action="/browser/confirm-email">
+            <label>Email <input name="email" type="email" autocomplete="username" required maxlength="254"></label>
+            <label>Six-digit code <input name="code" inputmode="numeric" autocomplete="one-time-code" required pattern="[0-9]{6}" maxlength="6"></label>
+            <button class="primary">Confirm email</button>
+          </form>
+        </details>
+      </div>
     </section>
     <div id="workspace" class="workspace" hidden>
       <nav class="panel member-nav" aria-label="Member pages"><button id="tab-discover">Discover</button><button id="tab-profile">My profile</button><button id="tab-matches">Matches</button></nav>

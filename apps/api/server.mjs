@@ -3,7 +3,7 @@ import {readFile} from 'node:fs/promises';
 import {Readable} from 'node:stream';
 import pg from 'pg';
 import {createChatHandler, createSupabaseVerifier} from './chat.mjs';
-import {createBrowserHandler, createPasswordExchange} from './browser.mjs';
+import {createBrowserHandler, createPasswordExchange, createEmailRegistration} from './browser.mjs';
 
 const {SPOTME_DATABASE_URL, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY} = process.env;
 const port = Number(process.env.PORT ?? 3080);
@@ -28,7 +28,8 @@ if (!check.rows[0]?.allowed) {
 db.on('error', () => console.error('An idle database connection failed.'));
 const chat = createChatHandler({verify, db});
 const handle = createBrowserHandler({origin:process.env.SPOTME_WEB_ORIGIN ?? `http://127.0.0.1:${port}`,
-  exchange:createPasswordExchange({url:SUPABASE_URL,apiKey:SUPABASE_PUBLISHABLE_KEY}), verify, chat});
+  exchange:createPasswordExchange({url:SUPABASE_URL,apiKey:SUPABASE_PUBLISHABLE_KEY}), verify, chat,
+  register:process.env.SPOTME_SIGNUP_ENABLED === 'true' ? createEmailRegistration({url:SUPABASE_URL,apiKey:SUPABASE_PUBLISHABLE_KEY}) : undefined});
 const assets = new Map(await Promise.all([
   ['/', 'index.html', 'text/html; charset=utf-8'],
   ['/app.css', 'app.css', 'text/css; charset=utf-8'],

@@ -21,7 +21,35 @@ function createPasswordExchange({url, apiKey, fetchToken = fetch}) {
   };
 }
 
-function createBrowserHandler({origin, exchange, verify, chat, now = Date.now}) {
+function createEmailRegistration({url, apiKey, fetchAuth = fetch}) {
+  const origin = httpOrigin(url);
+  return async function register(kind, email, secret) {
+    const confirming = kind === 'confirm-email';
+    try {
+      const response = await fetchAuth(new URL(confirming ? '/auth/v1/verify' : '/auth/v1/signup', origin), {
+        method:'POST', redirect:'error', signal:AbortSignal.timeout(5000),
+        headers:{apikey:apiKey,'content-type':'application/json'},
+        body:JSON.stringify(confirming ? {email,token:secret,type:'email'} : {email,password:secret})
+      });
+      if (response.status === 429) throw new HttpError(429,'try_again_later');
+      if ([400,401,403,422].includes(response.status)) {
+        // Keep registration responses uniform, including for existing accounts.
+        if (!confirming) return;
+        throw new HttpError(422,'invalid_confirmation');
+      }
+      if (!response.ok) throw new Error('Auth request failed');
+      const result = await response.json();
+      if (!confirming && (result.access_token || result.session)) {
+        throw new Error('Signup requires email confirmation');
+      }
+    } catch (error) {
+      if (error instanceof HttpError) throw error;
+      throw new HttpError(503,'auth_unavailable');
+    }
+  };
+}
+
+function createBrowserHandler({origin, exchange, verify, chat, register, now = Date.now}) {
   const site = httpOrigin(origin);
   const secure = site.protocol === 'https:';
   const cookieName = secure ? '__Host-spotme' : 'spotme_local';
@@ -52,11 +80,27 @@ function createBrowserHandler({origin, exchange, verify, chat, now = Date.now}) 
       const path = new URL(request.url).pathname;
       const signIn = request.method === 'POST' && path === '/browser/sign-in';
       const signOut = request.method === 'POST' && path === '/browser/sign-out';
+      const registration = request.method === 'POST' && (path === '/browser/sign-up' || path === '/browser/confirm-email');
       const api = path.startsWith('/v1/');
+      if (request.method === 'GET' && path === '/browser/options') return json({registration:Boolean(register)});
       if (api && request.headers.has('authorization')) return chat(request);
-      if (!signIn && !signOut && !api) return json({error:'not_found'},404);
+      if (!signIn && !signOut && !api && !registration) return json({error:'not_found'},404);
       if (!['GET','HEAD'].includes(request.method)) requireSameOrigin(request);
       const id = cookieId(request);
+      if (registration) {
+        if (!register) return json({error:'not_found'},404);
+        limitSignIn();
+        const input = await readJson(request);
+        const confirming = path === '/browser/confirm-email';
+        const email = typeof input?.email === 'string' ? input.email.trim() : '';
+        const field = confirming ? 'code' : 'password';
+        const secret = input?.[field];
+        if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || typeof secret !== 'string' ||
+            (confirming ? !/^\d{6}$/.test(secret) : secret.length < 12 || secret.length > 72 || Buffer.byteLength(secret)>72) ||
+            Object.keys(input).some(key=>!['email',field].includes(key))) throw new HttpError(422,'invalid_registration');
+        await register(confirming ? 'confirm-email' : 'sign-up',email,secret);
+        return json(null,204);
+      }
       if (signOut) {
         sessions.delete(id);
         return setCookie(json(null,204));
@@ -98,4 +142,4 @@ function createBrowserHandler({origin, exchange, verify, chat, now = Date.now}) 
   };
 }
 
-export {createBrowserHandler, createPasswordExchange};
+export {createBrowserHandler, createPasswordExchange, createEmailRegistration};

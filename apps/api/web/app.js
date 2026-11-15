@@ -63,6 +63,8 @@ function showAuth(message = '') {
   candidates=[];
   selectedGyms.clear();
   editor.reset();
+  $('register-form').reset();
+  $('confirm-email-form').reset();
   $('suggest-gym').reset();
   for(const id of ['selected-gyms','gym-results','live-card','profile-state']) $(id).replaceChildren();
   $('member-profile').hidden=true;
@@ -177,6 +179,38 @@ signIn.addEventListener('submit',async event => {
     status(error.status === 401 ? 'Could not sign in. Check your email and password.' : error.message,true);
   } finally { button.disabled = false; }
 });
+
+for (const [id,path] of [['register-form','sign-up'],['confirm-email-form','confirm-email']]) {
+  const form=$(id);
+  form.addEventListener('submit',async event=>{
+    event.preventDefault();
+    const button=form.querySelector('button');
+    if (button.disabled) return;
+    const data=Object.fromEntries(new FormData(form));
+    button.disabled=true;
+    try {
+      await api('/browser/'+path,{method:'POST',data});
+      form.reset();
+      if (path==='sign-up') {
+        $('confirm-email-panel').open=true;
+        $('confirm-email-form').elements.email.value=data.email;
+        $('confirm-email-form').elements.code.focus();
+        status('If this address can register, check your inbox for a confirmation code.');
+      } else {
+        $('confirm-email-panel').open=false;
+        signIn.elements.email.value=data.email;
+        signIn.elements.password.focus();
+        status('Email confirmed. Sign in to set up your profile.');
+      }
+    } catch (error) {
+      const message=error.status===422 ? (path==='sign-up' ? 'Check your email and choose a password that meets the requirements.' : 'That code could not be verified. Check your email and code.') : error.message;
+      status(message,true);
+    } finally {
+      if (path==='sign-up') form.elements.password.value='';
+      button.disabled=false;
+    }
+  });
+}
 
 $('sign-out').addEventListener('click',async () => {
   $('sign-out').disabled = true;
@@ -525,4 +559,5 @@ liveCard.addEventListener('pointerup',event=>{
 });
 liveCard.addEventListener('pointercancel',()=>{liveGesture=undefined;});
 liveCard.addEventListener('pointerleave',event=>{if(event.pointerType==='mouse')liveGesture=undefined;});
+void api('/browser/options').then(options=>{$('registration').hidden=!options.registration;}).catch(()=>{});
 void loadMatches();

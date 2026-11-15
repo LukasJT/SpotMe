@@ -61,3 +61,41 @@ test('browser sessions use opaque cookies, rotate on sign-in, and revoke on sign
   advance(60_001);
   assert.equal((await call('/v1/matches',{cookie:third})).status,401);
 });
+
+test('signup and email confirmation are origin-checked and never return provider tokens',async()=>{
+  const calls=[];
+  const {createEmailRegistration}=await import('../../apps/api/browser.mjs');
+  const register=createEmailRegistration({url:'https://project.example',apiKey:'sample-key',fetchAuth:async (url,init)=>{
+    const data=JSON.parse(init.body);
+    calls.push([url.pathname,data]);
+    assert.equal(init.headers.apikey,'sample-key');
+    assert.equal(init.redirect,'error');
+    if (url.pathname.endsWith('/signup')) {
+      return data.email.startsWith('existing') ? new Response(null,{status:422}) : Response.json({id:'pending'});
+    }
+    if (data.token!=='123456') return new Response(null,{status:403});
+    return Response.json({access_token:'private.access.token',refresh_token:'private-refresh'});
+  }});
+  const handler=createBrowserHandler({origin:site,register});
+  const post=(path,data,origin=site)=>handler(new Request(site+path,{method:'POST',
+    headers:{origin,'content-type':'application/json'},body:JSON.stringify(data)}));
+  assert.deepEqual(await (await handler(new Request(site+'/browser/options'))).json(),{registration:true});
+  const payload={email:'new@example.test',password:'a test password'};
+  assert.equal((await post('/browser/sign-up',payload,'https://elsewhere.example')).status,403);
+  assert.equal((await post('/browser/sign-up',{...payload,password:'too short'})).status,422);
+  assert.equal(calls.length,0);
+  for (const email of [payload.email,'existing@example.test']) {
+    const response=await post('/browser/sign-up',{...payload,email});
+    assert.equal(response.status,204);
+    assert.equal(await response.text(),'');
+    assert.equal(response.headers.has('set-cookie'),false);
+  }
+  assert.equal((await post('/browser/confirm-email',{email:payload.email,code:'000000'})).status,422);
+  const confirmed=await post('/browser/confirm-email',{email:payload.email,code:'123456'});
+  assert.deepEqual(calls.at(-1),['/auth/v1/verify',{email:payload.email,token:'123456',type:'email'}]);
+  assert.equal(confirmed.status,204);
+  assert.equal(await confirmed.text(),'');
+  assert.equal(confirmed.headers.has('set-cookie'),false);
+  const disabled=createBrowserHandler({origin:site});
+  assert.deepEqual(await (await disabled(new Request(site+'/browser/options'))).json(),{registration:false});
+});

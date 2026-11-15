@@ -32,4 +32,10 @@ API clients can send `Authorization: Bearer <access_token>` from a signed-in, em
 
 Match and message lists accept `limit` from 1 to 50. Message IDs are decimal strings so clients can round-trip PostgreSQL `bigint` values. Inaccessible conversations return `404`. A rejected or unavailable Auth request prevents database operations. Responses are marked `no-store`.
 
-The browser keeps sessions in one server process. Restarting it signs members out, and expiry requires signing in again. A hosted deployment needs durable session storage, login throttling across instances, and verification against real Supabase sessions. Self-service account creation, photo uploads and approval, staff tooling, and real directory import remain pending. Discovery uses initials until photo delivery is implemented.
+## Enable self-service registration in development
+
+Enable email/password signup and **Confirm email** in Supabase. Use `supabase/templates/confirm-signup.html` as the Confirm signup email template. It contains the six-digit code expected by the browser. Configure email delivery for the development test recipients, then set `SPOTME_SIGNUP_ENABLED=true` and restart the API. Until then, the signup controls and routes are off. [Supabase signup](https://supabase.com/docs/reference/javascript/auth-signup) · [Supabase email templates](https://supabase.com/docs/guides/auth/auth-email-templates)
+
+Create an account, enter the emailed code, then sign in with the password. Signup and verification responses carry no provider tokens. Successful signup uses a generic response so the app does not disclose whether the address already has an account. The API applies its process-wide sign-in rate limit to signup and code verification too. Profile onboarding still enforces the adult date-of-birth check before discovery approval.
+
+The browser keeps sessions in one server process. Restarting it signs members out, and expiry requires signing in again. A hosted deployment needs durable session storage, login throttling across instances, and verification against real Supabase sessions. Password recovery, photo uploads and approval, staff tooling, and real directory import remain pending. Discovery uses initials until photo delivery is implemented.
