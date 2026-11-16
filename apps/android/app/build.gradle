@@ -1,0 +1,31 @@
+plugins {
+    id 'com.android.application' version '8.13.2'
+}
+def api = providers.gradleProperty('spotmeApiOrigin').orElse('').get()
+if (api && !(api ==~ /https:\/\/[A-Za-z0-9.-]+(:[0-9]+)?/)) {
+    throw new GradleException('spotmeApiOrigin must be an HTTPS origin without a path.')
+}
+android {
+    namespace 'com.spotmedating.android'
+    compileSdk 36
+    buildToolsVersion '36.0.0'
+    defaultConfig {
+        applicationId 'com.spotmedating.android'
+        minSdk 26
+        targetSdk 36
+        versionCode 1
+        versionName '0.1.0'
+        buildConfigField 'String', 'SPOTME_API_ORIGIN', '"' + api + '"'
+    }
+    buildFeatures { buildConfig true }
+    buildTypes {
+        debug { buildConfigField 'String', 'SPOTME_API_ORIGIN', '"' + (api ?: 'http://127.0.0.1:3080') + '"' }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+dependencies {
+    implementation 'com.android.billingclient:billing:8.3.0'
+}

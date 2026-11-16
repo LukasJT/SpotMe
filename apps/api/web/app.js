@@ -25,6 +25,7 @@ async function api(path, {method = 'GET', data} = {}) {
       422:'Check your message and try again.',429:'Too many attempts. Try again in a minute.',
       503:'SpotMe is temporarily unavailable. Try again.'}[response.status] ?? 'Something went wrong. Try again.');
     error.status = response.status;
+    try { error.code = (await response.json()).error; } catch {}
     throw error;
   }
   return response.status === 204 ? null : response.json();
@@ -70,7 +71,9 @@ function showAuth(message = '') {
   $('member-profile').hidden=true;
   $('discovery').hidden=true;
   $('match-panel').hidden=false;
-  for(const tab of ['discover','profile','matches']) $('tab-'+tab).setAttribute('aria-current',String(tab==='matches'));
+  $('premium').hidden=true;
+  resetPremium();
+  for(const tab of ['discover','profile','matches','premium']) $('tab-'+tab).setAttribute('aria-current',String(tab==='matches'));
   status(message);
 }
 function showWorkspace() {
@@ -92,6 +95,7 @@ async function loadMatches(more = false) {
     const {matches} = await api(`/v1/matches${query}`);
     if (version !== matchVersion || session !== sessionVersion) return;
     showWorkspace();
+    if (!returnHandled&&['returned','cancelled'].includes(premiumReturn)&&activeTab==='matches') openTab('premium');
     if (!more) {
       list.replaceChildren();
       matchCursor = '';
@@ -319,10 +323,12 @@ function openTab(tab) {
   deckVersion++;
   activeTab=tab;
   clearConversation();
-  for (const item of ['discover','profile','matches']) $('tab-'+item).setAttribute('aria-current',String(item===tab));
+  for (const item of ['discover','profile','matches','premium']) $('tab-'+item).setAttribute('aria-current',String(item===tab));
   $('match-panel').hidden=tab!=='matches';
   $('member-profile').hidden=tab!=='profile';
   $('discovery').hidden=tab!=='discover';
+  $('premium').hidden=tab!=='premium';
+  if (tab==='premium') void refreshPremium();
   status('');
   if (tab==='profile') void loadEditor();
   if (tab==='discover') void refreshDeck();
@@ -379,6 +385,14 @@ async function loadEditor() {
       profile?.status==='suspended'||profile?.status==='deletion_pending'?'Your profile is unavailable.':'Save your profile to finish this step. Discovery opens after approval.';
     renderGyms();
     editor.hidden=false;
+    const visible=$('gym-search-visible');
+    visible.disabled=true;
+    if (profile) {
+      const visibility=await api('/v1/me/gym-search');
+      if (version!==memberVersion || session!==sessionVersion) return;
+      visible.checked=visibility.visible;
+      visible.disabled=false;
+    }
   } catch (error) { if (version===memberVersion && session===sessionVersion) requestFailed(error); }
 }
 
@@ -536,7 +550,7 @@ async function decideCard(decision) {
 $('refresh-deck').addEventListener('click',()=>refreshDeck());
 $('pass').addEventListener('click',()=>decideCard('pass'));
 $('like').addEventListener('click',()=>decideCard('like'));
-for(const tab of ['discover','profile','matches']) $('tab-'+tab).addEventListener('click',()=>openTab(tab));
+for(const tab of ['discover','profile','matches','premium']) $('tab-'+tab).addEventListener('click',()=>openTab(tab));
 $('tab-matches').setAttribute('aria-current','true');
 
 let liveGesture;
@@ -559,5 +573,182 @@ liveCard.addEventListener('pointerup',event=>{
 });
 liveCard.addEventListener('pointercancel',()=>{liveGesture=undefined;});
 liveCard.addEventListener('pointerleave',event=>{if(event.pointerType==='mouse')liveGesture=undefined;});
+$('gym-search-visible').addEventListener('change',async event=>{
+  const input=event.target, visible=input.checked, version=memberVersion, session=sessionVersion;
+  input.disabled=true;
+  try {
+    await api('/v1/me/gym-search',{method:'PUT',data:{visible}});
+    if(version===memberVersion&&session===sessionVersion) status('Gym search visibility updated.');
+  } catch(error) {
+    if(version===memberVersion&&session===sessionVersion){input.checked=!visible;requestFailed(error);}
+  } finally {if(version===memberVersion&&session===sessionVersion)input.disabled=false;}
+});
+
+const premiumReturn=new URLSearchParams(location.search).get('premium');
+let returnHandled=false, premiumVersion=0, directoryVersion=0, cardsVersion=0;
+let premiumGym='', premiumDirectory, gymFilters, premiumDirectoryAfter='', premiumCardAfter='';
+const premiumCurrent=session=>session===sessionVersion&&activeTab==='premium';
+function resetPremium() {
+  premiumVersion++;directoryVersion++;cardsVersion++;
+  premiumGym='';premiumDirectory=null;gymFilters=null;premiumDirectoryAfter='';premiumCardAfter='';
+  for(const id of ['premium-gyms','premium-cards','premium-gym-name','premium-state','premium-directory-state']) $(id).replaceChildren();
+  for(const id of ['premium-browser','premium-more-gyms','premium-filter','premium-more-cards','premium-plans','premium-terms','premium-manage','premium-cancel']) $(id).hidden=true;
+  $('premium-directory').reset();
+  $('premium-filter').reset();
+}
+async function refreshPremium(attempt=0) {
+  const session=sessionVersion,version=++premiumVersion;
+  const current=()=>premiumCurrent(session)&&version===premiumVersion;
+  try {
+    const {active,webCheckout,webCustomer}=await api('/v1/me/premium');
+    if(!current())return;
+    $('premium-plans').hidden=active||!webCheckout;
+    $('premium-terms').hidden=active||!webCheckout;
+    $('premium-manage').hidden=!webCustomer;
+    $('premium-cancel').hidden=active||!webCustomer;
+    $('premium-browser').hidden=!active;
+    const waiting=premiumReturn==='returned'&&!returnHandled&&!active;
+    $('premium-state').textContent=active?'Premium is active on your SpotMe account.':waiting?'Waiting for payment confirmation. You can refresh access at any time.':
+      webCheckout?'Choose a subscription to unlock gym search.':'Web checkout isn’t available right now.';
+    if (waiting&&attempt<5) {
+      setTimeout(()=>{if(current())void refreshPremium(attempt+1);},2000);
+    } else if (!returnHandled&&['returned','cancelled'].includes(premiumReturn)) {
+      returnHandled=true;
+      history.replaceState(null,'',location.pathname);
+      if (premiumReturn==='cancelled'&&!active) $('premium-state').textContent='Checkout closed. You can resume it or cancel it below.';
+    }
+    if(active) {
+      const {cities}=await api('/v1/cities');
+      if(!current())return;
+      const menu=$('premium-directory').elements.city,value=menu.value;
+      menu.replaceChildren(option('','Choose a city'),...cities.map(city=>option(city.id,`${city.name}, ${city.province}`)));
+      if(cities.some(city=>String(city.id)===value))menu.value=value;
+    } else {
+      directoryVersion++;cardsVersion++;
+      premiumGym='';premiumDirectory=null;gymFilters=null;
+      $('premium-gyms').replaceChildren();$('premium-cards').replaceChildren();
+      $('premium-filter').hidden=$('premium-more-gyms').hidden=$('premium-more-cards').hidden=true;
+    }
+  } catch(error){if(current())requestFailed(error);}
+}
+
+let checkoutBusy=false;
+async function paymentAction(action, plan) {
+  if(checkoutBusy)return;
+  const session=sessionVersion;
+  checkoutBusy=true;
+  const buttons=['buy-weekly','buy-monthly','premium-manage','premium-cancel'].map($);
+  for(const button of buttons)button.disabled=true;
+  try {
+    const result=await api(`/v1/me/stripe-${action}`,{method:'POST',data:plan?{plan}:undefined});
+    if(!premiumCurrent(session))return;
+    if(!result){status('Unfinished checkout canceled.');return;}
+    const target=new URL(result.url);
+    const host=action==='portal'?'billing.stripe.com':'checkout.stripe.com';
+    if(target.protocol!=='https:'||target.hostname!==host||target.port||target.username||target.password)throw new Error('Could not open Stripe checkout.');
+    location.assign(target.href);
+  } catch(error) {
+    if(!premiumCurrent(session))return;
+    const message={checkout_plan_pending:'Cancel your unfinished checkout before choosing a different plan.',
+      stripe_subscription_exists:'Manage your existing web subscription.',
+      premium_already_active:'Premium is already active on your account.',
+      stripe_customer_missing:'This account has no web subscription.'}[error.code];
+    if(message){await refreshPremium();if(premiumCurrent(session))status(message,true);}else requestFailed(error);
+  } finally {checkoutBusy=false;for(const button of buttons)button.disabled=false;}
+}
+$('buy-weekly').onclick=()=>paymentAction('checkout','weekly');
+$('buy-monthly').onclick=()=>paymentAction('checkout','monthly');
+$('premium-manage').onclick=()=>paymentAction('portal');
+$('premium-cancel').onclick=()=>paymentAction('cancel-checkout');
+$('premium-refresh').onclick=()=>refreshPremium();
+
+async function premiumGyms(more=false) {
+  const session=sessionVersion, version=++directoryVersion;
+  if(!more) {
+    premiumDirectory=new URLSearchParams(new FormData($('premium-directory')));
+    premiumDirectoryAfter='';premiumGym='';gymFilters=null;cardsVersion++;
+    $('premium-gyms').replaceChildren();$('premium-cards').replaceChildren();
+    $('premium-filter').hidden=$('premium-more-cards').hidden=true;
+  }
+  if(!premiumDirectory)return;
+  const query=new URLSearchParams(premiumDirectory);
+  if(premiumDirectoryAfter)query.set('after',premiumDirectoryAfter);
+  $('premium-more-gyms').hidden=true;
+  $('premium-directory-state').textContent='Finding gyms…';
+  try {
+    const {gyms}=await api(`/v1/gyms?${query}`);
+    if(!premiumCurrent(session)||version!==directoryVersion)return;
+    $('premium-directory-state').textContent=gyms.length?'':'No more gyms found.';
+    for(const gym of gyms) $('premium-gyms').append(control(`${gym.name} · ${gym.street_address}`,()=>{
+      premiumGym=gym.id; cardsVersion++;gymFilters=null;
+      $('premium-filter').hidden=false;
+      $('premium-gym-name').textContent=gym.name;
+      $('premium-cards').replaceChildren();
+      $('premium-more-cards').hidden=true;
+      $('premium-filter').elements.min_age.focus();
+    }));
+    premiumDirectoryAfter=gyms.at(-1)?.id??premiumDirectoryAfter;
+    $('premium-more-gyms').hidden=gyms.length!==30;
+  } catch(error){
+    if(premiumCurrent(session)&&version===directoryVersion){$('premium-directory-state').textContent='';$('premium-more-gyms').hidden=!more;requestFailed(error);}
+  }
+}
+async function premiumCards(more=false) {
+  const session=sessionVersion,version=++cardsVersion,area=$('premium-cards');
+  if(!more) {
+    gymFilters=new URLSearchParams(new FormData($('premium-filter')));
+    if(Number(gymFilters.get('min_age'))>Number(gymFilters.get('max_age'))){status('Minimum age must be below or equal to maximum age.',true);return;}
+    gymFilters.set('gym',premiumGym);premiumCardAfter='';area.replaceChildren();status('');
+  }
+  if(!gymFilters)return;
+  const query=new URLSearchParams(gymFilters);
+  if(premiumCardAfter)query.set('after',premiumCardAfter);
+  $('premium-more-cards').hidden=true;
+  try {
+    const {cards}=await api(`/v1/premium/gym-cards?${query}`);
+    if(!premiumCurrent(session)||version!==cardsVersion)return;
+    if(!cards.length&&!more)area.textContent='No eligible profiles match these filters right now.';
+    for(const card of cards) {
+      const article=document.createElement('article');
+      cardText(article,`${card.name}, ${card.age}`,card.city);
+      cardText(article,'About me',card.bio);
+      cardText(article,'Looking for',card.intent);
+      cardText(article,'Training',[card.split,card.frequency==null?'':`${card.frequency} days a week`].filter(Boolean).join(' · '));
+      cardText(article,'Typical week',(card.days??[]).map(day=>dayLabels[day-1]).join(', '));
+      const actions=document.createElement('div');
+      actions.className='actions';
+      const act=async decision=>{
+        for(const button of actions.querySelectorAll('button'))button.disabled=true;
+        try {
+          const result=decision==='block' ? await api(`/v1/blocks/${encodeURIComponent(card.id)}`,{method:'POST'}) :
+            await api('/v1/swipes',{method:'POST',data:{peer_id:card.id,decision}});
+          if(!premiumCurrent(session)||!article.isConnected)return;
+          article.remove();
+          status(result?.matched?'You matched! Open Matches to say hello.':decision==='block'?'Profile blocked.':'');
+        } catch(error){if(premiumCurrent(session)&&article.isConnected)requestFailed(error);}
+        finally {for(const button of actions.querySelectorAll('button'))button.disabled=false;}
+      };
+      const like=control('Like',()=>act('like'));like.className='primary';
+      actions.append(control('Pass',()=>act('pass')),like);
+      const safety=document.createElement('details'), label=document.createElement('summary');
+      label.textContent='Safety';
+      const block=control('Block '+card.name,()=>block.replaceWith(control('Confirm block',()=>act('block'))));
+      safety.append(label,reportForm(card.id),block);
+      article.append(actions,safety);
+      area.append(article);
+    }
+    premiumCardAfter=cards.at(-1)?.id??premiumCardAfter;
+    $('premium-more-cards').hidden=cards.length!==20;
+  }catch(error){
+    if(premiumCurrent(session)&&version===cardsVersion){
+      if(error.code==='premium_required')void refreshPremium();
+      $('premium-more-cards').hidden=!more;requestFailed(error);
+    }
+  }
+}
+$('premium-directory').onsubmit=event=>{event.preventDefault();void premiumGyms();};
+$('premium-more-gyms').onclick=()=>premiumGyms(true);
+$('premium-filter').onsubmit=event=>{event.preventDefault();void premiumCards();};
+$('premium-more-cards').onclick=()=>premiumCards(true);
 void api('/browser/options').then(options=>{$('registration').hidden=!options.registration;}).catch(()=>{});
 void loadMatches();
