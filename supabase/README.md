@@ -12,6 +12,7 @@ From the repository root, with Node.js 22 and npm:
 
 ```sh
 npm --prefix supabase/tests ci --ignore-scripts
+npm --prefix apps/api ci --ignore-scripts
 npm --prefix supabase/tests test
 ```
 
